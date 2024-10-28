@@ -1,35 +1,59 @@
 import os
+import time
 import requests
 from bs4 import BeautifulSoup
 import re
 import csv
 import json
+from fake_useragent import UserAgent
+
+
+from joblib import Parallel, delayed
+
+depth = 1
+#depth 0 = single article about cheese
+#depth 1 = 236 articles related to cheese
+#depth 2 = 28700 articles related, needs 800MB Total (400MB in both formats)
+#depth 3 = about 700K articles, probably about 15 Terabytes
+if(depth > 2):
+    print("Are you insane?")
+    depth = 2
 
 # Filtros para los tags
 exclude_list = ["contents", "see also", "notes", "references", "further reading", "external links", "citations", "websites", "directories", "sources"]
 
-#Para obtener todos los enlaces dentro de un articulo de wikipedia
+def flatten(xss):
+    return [x for xs in xss for x in xs]
+
+
 def get_links(url):
+    """Para obtener todos los enlaces dentro de un articulo de wikipedia"""
     try:
-        response = requests.get(url)
+        ua = UserAgent()
+        randomguy = ua.random
+        response = requests.get(url, headers = {'User-agent': randomguy})
+
+        if response.status_code == 429:
+            print("Wikipedia stopped you for procesing way too much")
+            time.sleep(int(response.headers["Retry-After"]))
+            print("Here we are again!")
+            response = requests.get(url, headers = {'User-agent': randomguy})
+
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         wiki_links = []
         for p_tag in soup.find_all('p'):
             links = [a.get('href') for a in p_tag.find_all('a', href=True) if a.get('href').startswith('/wiki/')]
             wiki_links.extend(links)
+        wiki_links = list(set(wiki_links))
         return wiki_links
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the page: {e}")
         return None
 
-#Tomar el titulo de la pagina wikipedia
-def get_title(url):
+def get_title(soup):
+    """Tomar el titulo de la pagina wikipedia"""
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
         title_tag = soup.find('span', class_='mw-page-title-main')
         title = title_tag.text if title_tag else "Title not found"
         
@@ -38,12 +62,10 @@ def get_title(url):
         print(f"Error fetching the page: {e}")
         return None
 
-#Los subtitulos (tags)
-def get_subtitles(url):
+
+def get_subtitles(soup):
+    """Los subtitulos (tags)"""
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
         subtitles = []
         for tag in soup.find_all(['h2', 'h3', 'h4']):
             subtitle_text = tag.text.strip()
@@ -55,12 +77,9 @@ def get_subtitles(url):
         return None
 
 #Obtener todo el texto
-def get_paragraph_text(url):
+def get_paragraph_text(soup):
+    """#Obtener todo el texto"""
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
         paragraphs = [p.text.strip() for p in soup.find_all('p')]
         
         return paragraphs
@@ -68,19 +87,32 @@ def get_paragraph_text(url):
         print(f"Error fetching the page: {e}")
         return None
 
+
+not_allowed_words = ["at", "the", "what", "with", "and", "was", "at", "its", "for", "from", "who", "than", "other", "such"
+                     "citation", "needed", "where", "when", "while", "have", "are", "were", "had", "this", "like", "that",
+                     "began", "make", "also", "about", "and"]
+
+def filter_string(input_string):
+    """Filtros para quitar palabrillas y numeros"""
+    filtered_string = re.sub(r'\d+', '', input_string)
+    words = filtered_string.split()
+    filtered_words = [word for word in words if len(word) > 2 and word not in not_allowed_words]
+    return ' '.join(filtered_words)
+
 #Limpiar el texto
 def clean_text(text):
-    """Cleans the text by removing punctuation, making it lowercase, and preserving spaces between words."""
+    """Limpia un parrafo de texto"""
     spaced_text = re.sub(r'[^a-zA-Z0-9]', ' ', text)
     cleaned_text = re.sub(r'\s+', ' ', spaced_text).lower().strip()
-    return cleaned_text
+    super_cleaned_text = filter_string(cleaned_text)
+    return super_cleaned_text
+
+
 
 #Obtener los tags con su texto
-def get_paragraphs_by_subtitle(url):
+def get_paragraphs_by_subtitle(soup):
+    """Metodo de webscraping para tomar datos para el JSON"""
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
         content = {}
         current_subtitle = None
         for tag in soup.find_all(['h1', 'h2', 'h3', 'h4', 'p']):
@@ -103,6 +135,7 @@ def get_paragraphs_by_subtitle(url):
 
 #Mandarlo a JSON
 def save_to_json(data, article_title, filename='wikipedia.json'):
+    """Metodo (Actualmente sin uso) para guardar un Json"""
     all_articles = {}
     #If it doesn't exist yet:
     if os.path.exists(filename):
@@ -117,7 +150,7 @@ def save_to_json(data, article_title, filename='wikipedia.json'):
 
 #Proceso recursivo para encontrar links
 def fillLinks(Linklist, url):
-    url = 'https://wikipedia.org' + url
+    """Metodo lineal para tomar enlaces de un archivo"""
     Linklist = get_links(url)
     newList = [url]
     for link in Linklist:
@@ -126,62 +159,112 @@ def fillLinks(Linklist, url):
         newList.append(link)
     return newList
 
+
+def parallel_links(url):
+    """Metodo todo chiquito usado por joblib"""
+    sublist = fillLinks([], url)
+    return sublist
+
 def web_crawling(Linklist, limit):
-    if(limit == 0):#base case to avoid uberRecursion
-        print("Recursion is stopped!")
+    """Proceso para tomar todos los enlaces de manera recursiva"""
+    if limit == 0:  # Caso base
+        print("Recursion is stopped.")
         return Linklist
-    
-    print("getting links...")
-    counter = 1
-    size = len(Linklist)
-    Newlist = Linklist
-    for url in Linklist:
-        try: #Si el articulo 2000 falla por alguna razon super equisde, solo siga con el resto
-             #No me hagas tener que repetirlo todo, que sino entonces termino hasta el 2026 :(
-            sublist = get_links('https://wikipedia.org' + url)
-            if(len(sublist) > 1):
-                Newlist = Newlist + sublist
-            print(counter, " out of ", size)
-            counter += 1
-        except Exception:
-            continue
-    Newlist = list(set(Newlist)) #Remove repeats
-    print("Found a total of: ", len(Newlist))
-    print("Going into the next level! \n")
+    print("Getting links...")
+    results = Parallel(n_jobs=-1)(delayed(parallel_links)(url) for url in Linklist)
+    results = sum(results, [])
+    NewList = Linklist + results
+    NewList = list(set(NewList))
     limit -= 1
-    return  web_crawling(Newlist, limit)
+    print("Done! There are now", len(NewList),"elements and ", limit,"layers to go.")
+    return web_crawling(NewList, limit)
 
-
-LinkList = ['/wiki/Cheese']
+LinkList = ['https://wikipedia.org/wiki/Cheese']
 csv_file = 'wikipedia.csv'
-# LinkList = fillLinks(LinkList)
-#total = len(LinkList)
-print(len(LinkList))
-LinkList = web_crawling(LinkList, 3)
+json_file = 'wikipedia.json'
+
+print("choosing to embark with a dept of ", depth)
+LinkList = web_crawling(LinkList, depth)
 total = len(LinkList)
 print("There's a total of", total)
+# print(LinkList) You REALLY don't want to do this!
 
-#Esta cosa pide a gritos ser paralelizada... !!!
-counter = 0
+
+print("Now, it's time for procesing")
+def process_url(url):
+    """Proceso para tomar todos los datos relevantes de un url de wikipedia"""
+    try:
+        ua = UserAgent()
+        randomguy = ua.random
+        response = requests.get(url, headers = {'User-agent': randomguy})
+        if response.status_code == 429:
+            print("Wikipedia stopped you for procesing way too much")
+            time.sleep(int(response.headers["Retry-After"]))
+            print("Here we are again!")
+            response = requests.get(url, headers = {'User-agent': randomguy})
+
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        
+        #Recoleccion de datos: 
+        paragraphs = get_paragraph_text(soup)
+        joined_paragraphs = " ".join(paragraphs)
+        cleaned_text = clean_text(joined_paragraphs)
+        subtitles = get_subtitles(soup)
+        title = get_title(soup)
+        paragraphs_by_subtitle = get_paragraphs_by_subtitle(soup)
+        
+        #Returns feos
+        return {
+            "csv": {"link": url, "title": title, "subtitles": subtitles.lower(), "text": cleaned_text},
+            "json": {title: paragraphs_by_subtitle}
+        }
+    except Exception as e:
+        print(f"Error processing {url}: {e}")
+        return None
+if(depth > 1):
+    print("Waiting 2 minutes so Wikipedia doesn't suspect anything weird")
+    time.sleep(120)
+    print("Time to process! Here it comes...")
+
+
+
+
+
+data_results = Parallel(n_jobs=-1)(delayed(process_url)(url) for url in LinkList)
+"""Esto se va distribuyendo todos los urls encontrados entre tus procesadores"""
+
+
+print("It is done, now time for writing the results")
+
 with open(csv_file, mode='w', newline='') as file:
-    fieldNames = ["link", "title", "subtitles", "text"] 
-    writer = csv.DictWriter(file, fieldnames=fieldNames)
+    fieldnames = ["link", "title", "subtitles", "text"]
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
     writer.writeheader()
-    for url in LinkList:
+    
+    for result in data_results:
         try:
-            paragraphs = get_paragraph_text(url)
-            # Join all paragraphs into a single string
-            joined_paragraphs = " ".join(paragraphs)
-            cleaned_text = clean_text(joined_paragraphs)
-            subtitles = get_subtitles(url)
-            title = get_title(url)
-            writer.writerow({"link": url, "title": title, "subtitles": subtitles.lower(), "text": cleaned_text})
-            paragraphs_by_subtitle = get_paragraphs_by_subtitle(url)
-            save_to_json(paragraphs_by_subtitle, title)
-            print(counter, " out of ",total)
-            counter +=1
-        except Exception:
+            if result and "csv" in result:
+                writer.writerow(result["csv"])
+        except Exception as e:
             continue
 
-print(f"Data written to {csv_file}")
 
+all_articles = {}
+if os.path.exists(json_file):
+    with open(json_file, 'r', encoding='utf-8') as f:
+        try:
+            all_articles = json.load(f)
+        except json.JSONDecodeError:
+            print("Error loading JSON: The file may be corrupted.")
+            all_articles = {}
+
+for result in data_results:
+    if result and "json" in result:
+        all_articles.update(result["json"])
+
+with open(json_file, 'w', encoding='utf-8') as f:
+    json.dump(all_articles, f, ensure_ascii=False, indent=4)
+
+print(f"Data written to {csv_file} and {json_file}")

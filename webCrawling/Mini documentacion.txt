@@ -1,0 +1,28 @@
+links, web scraping recursivo en Wikipedia
+->El script utiliza paralelismo para leer la mayor cantidad de articulos posibles.
+->NO se usa un algoritmo completamente optimo para evitar que wikipedia bloquee
+    el acceso al script a mitad de camino, lo cual paso muy amenudo por el final... :(
+->El algoritmo carecé de un sistema apropiado de carga, se estima que con 12 procesadores
+    (virtuales o no) se puede terminar en cuestion de una hora el analisis de 30mil articulos
+->Se recomienda fueremente tener al menos la capacidad de almacenar en memoria RAM a
+   unos 2 GB en caso de que se quiera tomar una profundidad de dos
+
+
+Me siento tanto orgulloso como harto de haber trabajado con esta cosa. Si quieren reutilizarlo
+en sus propios proyectos los invito totalmente a usar esto, siempre y cuando no sean estudiantes
+que estan realizando un proyecto. En cuyo caso, por favor solo inspirence en el funcionamiento
+y traten de crear algo propio. porqué para eso es que estas estudiando vos, copiar y pegar es algo
+que le encargas a chatGPT no a un ingeniero, tu trabajo es ingeniartela y saber resolver cosas.
+
+
+Bueno rant over. Hora de mirar el funcionamiento de esta cosa
+
+Primero se encarga de tomar todos los enlaces de 1 pagina, y despues de manera recursiva toma
+a todos los enlaces dentro de cada unico enlace. Este proceso se repite recursivamente una cantidad,
+preferiblemente pequeña, de veces debido al crecimiento exponencial que tienen. Al finalizar este
+proceso recursivo se procede a tomar los datos de cada enlace. Estos datos son después almacenados
+en tanto un JSON como un CVS
+
+Se usa la libreria de multiprocesamiento Joblib, honestamente la recomiendo con todo el corazon, es
+relativamente facil de implementar y quizas sea hasta más facil de hacer que un algoritmo lineal. Esa
+libreria me ha salvado en otro proyecto previo en mi carrera y me lo hizo de nuevo
