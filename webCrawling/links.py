@@ -6,26 +6,39 @@ import re
 import csv
 import json
 from fake_useragent import UserAgent
-
-
 from joblib import Parallel, delayed
+from tqdm import tqdm
 
-depth = 1
-#depth 0 = single article about cheese
-#depth 1 = 236 articles related to cheese
-#depth 2 = 28700 articles related, needs 800MB Total (400MB in both formats)
-#depth 3 = about 700K articles, probably about 15 Terabytes
-if(depth > 2):
-    print("Are you insane?")
-    depth = 2
+#Variables:
+depth = 2
+article = "https://en.wikipedia.org/wiki/Spain"
 
-# Filtros para los tags
+#------------------------------------------------------------------------------------------------
+#                               Estimated data retriaval
+#------------------------------------------------------------------------------------------------
+# depth 0 = Single article
+# depth 1 = All related articles
+# depth 2 = Related articles about related articles, probably more than 20K
+# depth 3 = Between 200K to 1 Million depending on how centric the article is
+# depth 4 = Biggest amount of data increase, estimated around 50% of wikipedias entire database
+# depth 5 = another increase, equivalent to depth 3
+# depth 6 = small increase, equivalent to depth 2
+# All further depths add negligible amounts of data are negligible.
+#------------------------------------------------------------------------------------------------
+# There's an estimated 6.8 million articles for english wikipedia, you will get only about 80% 
+# MAX due to the amount of articles not referenced by anyone or are too secluded from the rest.
+#------------------------------------------------------------------------------------------------
+
+# Filters for tags
 exclude_list = ["contents", "see also", "notes", "references", "further reading", "external links", "citations", "websites", "directories", "sources"]
 
 def flatten(xss):
     return [x for xs in xss for x in xs]
 
 
+#------------------------------------------------------------------------------------------------
+#                                      Web scraping methods
+#------------------------------------------------------------------------------------------------
 def get_links(url):
     """Para obtener todos los enlaces dentro de un articulo de wikipedia"""
     try:
@@ -107,8 +120,6 @@ def clean_text(text):
     super_cleaned_text = filter_string(cleaned_text)
     return super_cleaned_text
 
-
-
 #Obtener los tags con su texto
 def get_paragraphs_by_subtitle(soup):
     """Metodo de webscraping para tomar datos para el JSON"""
@@ -147,8 +158,9 @@ def save_to_json(data, article_title, filename='wikipedia.json'):
         json.dump(all_articles, f, ensure_ascii=False, indent=4)
 
 
-
-#Proceso recursivo para encontrar links
+#------------------------------------------------------------------------------------------------
+#                                 Methods for web scraping links
+#------------------------------------------------------------------------------------------------
 def fillLinks(Linklist, url):
     """Metodo lineal para tomar enlaces de un archivo"""
     Linklist = get_links(url)
@@ -158,7 +170,6 @@ def fillLinks(Linklist, url):
         #print(link + " \n")
         newList.append(link)
     return newList
-
 
 def parallel_links(url):
     """Metodo todo chiquito usado por joblib"""
@@ -171,7 +182,10 @@ def web_crawling(Linklist, limit):
         print("Recursion is stopped.")
         return Linklist
     print("Getting links...")
-    results = Parallel(n_jobs=-1)(delayed(parallel_links)(url) for url in Linklist)
+    if(len(Linklist)==1):
+        results = Parallel(n_jobs=-1)(delayed(parallel_links)(url) for url in Linklist)
+    else:
+        results = Parallel(n_jobs=-1)(delayed(parallel_links)(url) for url in tqdm(Linklist))
     results = sum(results, [])
     NewList = Linklist + results
     NewList = list(set(NewList))
@@ -179,18 +193,20 @@ def web_crawling(Linklist, limit):
     print("Done! There are now", len(NewList),"elements and ", limit,"layers to go.")
     return web_crawling(NewList, limit)
 
-LinkList = ['https://wikipedia.org/wiki/Cheese']
+
+#------------------------------------------------------------------------------------------------
+#                           Retrieving the data for the links
+#------------------------------------------------------------------------------------------------
+LinkList = [article]
 csv_file = 'wikipedia.csv'
 json_file = 'wikipedia.json'
 
-print("choosing to embark with a dept of ", depth)
+print("The program is choosing to embark with a dept of ", depth)
 LinkList = web_crawling(LinkList, depth)
 total = len(LinkList)
 print("There's a total of", total)
 # print(LinkList) You REALLY don't want to do this!
-
-
-print("Now, it's time for procesing")
+print("Now, it's time for fetching and processing the data from wikipedia")
 def process_url(url):
     """Proceso para tomar todos los datos relevantes de un url de wikipedia"""
     try:
@@ -198,15 +214,14 @@ def process_url(url):
         randomguy = ua.random
         response = requests.get(url, headers = {'User-agent': randomguy})
         if response.status_code == 429:
-            print("Wikipedia stopped you for procesing way too much")
-            time.sleep(int(response.headers["Retry-After"]))
-            print("Here we are again!")
+            #print("Wikipedia stopped you for procesing way too much") Multiprocesing can make it anoying...
+            time.sleep(60)
+            #print("Here we are again!")
             response = requests.get(url, headers = {'User-agent': randomguy})
 
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        
         #Recoleccion de datos: 
         paragraphs = get_paragraph_text(soup)
         joined_paragraphs = " ".join(paragraphs)
@@ -221,22 +236,16 @@ def process_url(url):
             "json": {title: paragraphs_by_subtitle}
         }
     except Exception as e:
-        print(f"Error processing {url}: {e}")
+        #print(f"Error processing {url}: {e}")
         return None
-if(depth > 1):
-    print("Waiting 2 minutes so Wikipedia doesn't suspect anything weird")
-    time.sleep(120)
-    print("Time to process! Here it comes...")
 
-
-
-
-
-data_results = Parallel(n_jobs=-1)(delayed(process_url)(url) for url in LinkList)
+print("Here we go!...")
+data_results = Parallel(n_jobs=-1)(delayed(process_url)(url) for url in tqdm(LinkList))
 """Esto se va distribuyendo todos los urls encontrados entre tus procesadores"""
 
 
-print("It is done, now time for writing the results")
+print("It is done! Now it's time for writing the results :D")
+print("don't worry this should take much less...")
 
 with open(csv_file, mode='w', newline='') as file:
     fieldnames = ["link", "title", "subtitles", "text"]
@@ -267,4 +276,4 @@ for result in data_results:
 with open(json_file, 'w', encoding='utf-8') as f:
     json.dump(all_articles, f, ensure_ascii=False, indent=4)
 
-print(f"Data written to {csv_file} and {json_file}")
+print(f"Done! The data was written into {csv_file} and {json_file}")

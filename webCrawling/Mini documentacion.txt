@@ -1,28 +1,14 @@
-links, web scraping recursivo en Wikipedia
-->El script utiliza paralelismo para leer la mayor cantidad de articulos posibles.
-->NO se usa un algoritmo completamente optimo para evitar que wikipedia bloquee
-    el acceso al script a mitad de camino, lo cual paso muy amenudo por el final... :(
-->El algoritmo carecé de un sistema apropiado de carga, se estima que con 12 procesadores
-    (virtuales o no) se puede terminar en cuestion de una hora el analisis de 30mil articulos
-->Se recomienda fueremente tener al menos la capacidad de almacenar en memoria RAM a
-   unos 2 GB en caso de que se quiera tomar una profundidad de dos
+->links, web scraping recursivo en Wikipedia
 
+El archivo contiene 2 variables al inicio, url donde se coloca desde donde se desea iniciar la busqueda y
+depth que indica la profundidad de la recursion. Es muy poco aconsejable usar ninguna profundidad
+mayor a 2 debido al estres que genera en recursos computacionales. Se estima que depth 5 deberia de
+descargar a almenos la mitad de la base de datos de wikipedia, dependiendo de donde se comienza.
 
-Me siento tanto orgulloso como harto de haber trabajado con esta cosa. Si quieren reutilizarlo
-en sus propios proyectos los invito totalmente a usar esto, siempre y cuando no sean estudiantes
-que estan realizando un proyecto. En cuyo caso, por favor solo inspirence en el funcionamiento
-y traten de crear algo propio. porqué para eso es que estas estudiando vos, copiar y pegar es algo
-que le encargas a chatGPT no a un ingeniero, tu trabajo es ingeniartela y saber resolver cosas.
-
-
-Bueno rant over. Hora de mirar el funcionamiento de esta cosa
-
-Primero se encarga de tomar todos los enlaces de 1 pagina, y despues de manera recursiva toma
-a todos los enlaces dentro de cada unico enlace. Este proceso se repite recursivamente una cantidad,
-preferiblemente pequeña, de veces debido al crecimiento exponencial que tienen. Al finalizar este
-proceso recursivo se procede a tomar los datos de cada enlace. Estos datos son después almacenados
-en tanto un JSON como un CVS
-
-Se usa la libreria de multiprocesamiento Joblib, honestamente la recomiendo con todo el corazon, es
-relativamente facil de implementar y quizas sea hasta más facil de hacer que un algoritmo lineal. Esa
-libreria me ha salvado en otro proyecto previo en mi carrera y me lo hizo de nuevo
+El script va recogiendo de manera recursiva todas las referencias en un articulo de wikipedia hacia otros
+articulos de wikipedia, los cuales tendrán más referencias dentro que pueden usarse para seguir con el 
+ciclo, esto se repite segun la profundidad que se desea. Despues de este proceso recursivo, el script pasa
+a descargar y procesar los datos de manera concurrente con todos los procesadores en el dispositivo que
+lo ejecuta, esto (y tambien los ciclos de recoger enlaces) se logra mediante la libreria de Joblib y su apartado
+de multiprocesamiento. Eventualmente cuando los datos son procesados, se escriben tanto en formato CSV 
+como JSON en el mismo directorio que el archivo ejecutado.
