@@ -12,32 +12,31 @@ from tqdm import tqdm
 #Variables:
 depth = 2
 article = "https://en.wikipedia.org/wiki/Spain"
+csv_file = 'wikipedia.csv'
+json_file = 'wikipedia.json'
 
 #------------------------------------------------------------------------------------------------
-#                               Estimated data retriaval
+#                               Estimated data retrieval
 #------------------------------------------------------------------------------------------------
 # depth 0 = Single article
 # depth 1 = All related articles
 # depth 2 = Related articles about related articles, probably more than 20K
 # depth 3 = Between 200K to 1 Million depending on how centric the article is
-# depth 4 = Biggest amount of data increase, estimated around 50% of wikipedias entire database
+# depth 4 = Biggest increase, should fetch at least 50% of all data in wikipedia
 # depth 5 = another increase, equivalent to depth 3
 # depth 6 = small increase, equivalent to depth 2
-# All further depths add negligible amounts of data are negligible.
+# All further depths add negligible amounts of data.
 #------------------------------------------------------------------------------------------------
 # There's an estimated 6.8 million articles for english wikipedia, you will get only about 80% 
-# MAX due to the amount of articles not referenced by anyone or are too secluded from the rest.
+# MAX due to the amount of articles not referenced by anyone or that are too secluded from the rest.
 #------------------------------------------------------------------------------------------------
 
 # Filters for tags
 exclude_list = ["contents", "see also", "notes", "references", "further reading", "external links", "citations", "websites", "directories", "sources"]
 
-def flatten(xss):
-    return [x for xs in xss for x in xs]
-
 
 #------------------------------------------------------------------------------------------------
-#                                      Web scraping methods
+# Data proccesing | Methods here recieve a clean version of the article's HTML and process it
 #------------------------------------------------------------------------------------------------
 def get_links(url):
     """Para obtener todos los enlaces dentro de un articulo de wikipedia"""
@@ -114,8 +113,9 @@ def filter_string(input_string):
 
 #Limpiar el texto
 def clean_text(text):
-    """Limpia un parrafo de texto"""
-    spaced_text = re.sub(r'[^a-zA-Z0-9]', ' ', text)
+    """Limpia un parrafo de texto conservando caracteres en español"""
+    # Include a-z, A-Z, 0-9, and Spanish-specific characters like ñ, á, é, í, ó, ú, ü
+    spaced_text = re.sub(r'[^a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ]', ' ', text)
     cleaned_text = re.sub(r'\s+', ' ', spaced_text).lower().strip()
     super_cleaned_text = filter_string(cleaned_text)
     return super_cleaned_text
@@ -159,7 +159,7 @@ def save_to_json(data, article_title, filename='wikipedia.json'):
 
 
 #------------------------------------------------------------------------------------------------
-#                                 Methods for web scraping links
+# Methods for web scraping links and data |  Manage to request and navigate through Wikipedia
 #------------------------------------------------------------------------------------------------
 def fillLinks(Linklist, url):
     """Metodo lineal para tomar enlaces de un archivo"""
@@ -179,7 +179,6 @@ def parallel_links(url):
 def web_crawling(Linklist, limit):
     """Proceso para tomar todos los enlaces de manera recursiva"""
     if limit == 0:  # Caso base
-        print("Recursion is stopped.")
         return Linklist
     print("Getting links...")
     if(len(Linklist)==1):
@@ -190,23 +189,10 @@ def web_crawling(Linklist, limit):
     NewList = Linklist + results
     NewList = list(set(NewList))
     limit -= 1
-    print("Done! There are now", len(NewList),"elements and ", limit,"layers to go.")
+    if(limit > 0):
+        print("Done! There are now", len(NewList),"elements and ", limit,"layers to go.")
     return web_crawling(NewList, limit)
 
-
-#------------------------------------------------------------------------------------------------
-#                           Retrieving the data for the links
-#------------------------------------------------------------------------------------------------
-LinkList = [article]
-csv_file = 'wikipedia.csv'
-json_file = 'wikipedia.json'
-
-print("The program is choosing to embark with a dept of ", depth)
-LinkList = web_crawling(LinkList, depth)
-total = len(LinkList)
-print("There's a total of", total)
-# print(LinkList) You REALLY don't want to do this!
-print("Now, it's time for fetching and processing the data from wikipedia")
 def process_url(url):
     """Proceso para tomar todos los datos relevantes de un url de wikipedia"""
     try:
@@ -238,27 +224,33 @@ def process_url(url):
     except Exception as e:
         #print(f"Error processing {url}: {e}")
         return None
+#------------------------------------------------------------------------------------------------
+# Retrieving the data for the links | You can see the steps the program takes here.
+#------------------------------------------------------------------------------------------------
+LinkList = [article]
+print("The program is choosing to embark with a dept of ", depth)
+LinkList = web_crawling(LinkList, depth)
 
+total = len(LinkList)
+print("There's a total of ", total, " articles found")
+print("Now, it's time for fetching and processing the data from wikipedia")
 print("Here we go!...")
+
 data_results = Parallel(n_jobs=-1)(delayed(process_url)(url) for url in tqdm(LinkList))
 """Esto se va distribuyendo todos los urls encontrados entre tus procesadores"""
 
-
-print("It is done! Now it's time for writing the results :D")
-print("don't worry this should take much less...")
-
+print("It is done! Now it's time for writing the results")
 with open(csv_file, mode='w', newline='') as file:
     fieldnames = ["link", "title", "subtitles", "text"]
     writer = csv.DictWriter(file, fieldnames=fieldnames)
     writer.writeheader()
     
-    for result in data_results:
+    for result in tqdm(data_results):
         try:
             if result and "csv" in result:
                 writer.writerow(result["csv"])
         except Exception as e:
             continue
-
 
 all_articles = {}
 if os.path.exists(json_file):
