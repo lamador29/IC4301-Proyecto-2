@@ -19,7 +19,7 @@ pip install tqdm
 
 #Variables:
 depth = 1
-article = "https://en.wikipedia.org/wiki/Fish"
+article = "https://en.wikipedia.org/wiki/Lizano_sauce"
 csv_file = 'lizano.csv'
 json_file = 'lizano.json'
 
@@ -128,24 +128,22 @@ def clean_text(text):
     return super_cleaned_text
 
 #Obtener los tags con su texto
-def get_paragraphs_by_subtitle(soup):
-    """Metodo de webscraping para tomar datos para el JSON"""
+def get_paragraphs_by_tag(soup):
+    """Method for web scraping to collect and group text by HTML tags."""
     try:
         content = {}
-        current_subtitle = None
-        for tag in soup.find_all(['h1', 'h2', 'h3', 'h4', 'p']):
-            if tag.name in ['h1', 'h2', 'h3', 'h4']:
-                subtitle_text = tag.get_text(strip=True).lower()
-                if subtitle_text not in exclude_list:
-                    current_subtitle = subtitle_text
-                    content[current_subtitle] = ""
-                else:
-                    current_subtitle = None  
-            elif tag.name == 'p' and current_subtitle:
-                paragraph_text = tag.get_text(" ", strip=True)
-                cleaned_paragraph = clean_text(paragraph_text)
-                content[current_subtitle] += " " + cleaned_paragraph
-        content = {k: v.strip() for k, v in content.items()}
+        tags_to_collect = ['h1', 'h2', 'h3', 'h4', 'p']
+        
+        for tag_name in tags_to_collect:
+            tag_texts = []
+            for tag in soup.find_all(tag_name):
+                tag_text = tag.get_text(" ", strip=True)
+                cleaned_text = clean_text(tag_text)
+                tag_texts.append(cleaned_text)
+
+            if tag_texts:
+                content[tag_name] = " ".join(tag_texts)
+        
         return content
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the page: {e}")
@@ -219,13 +217,13 @@ def process_url(url):
         paragraphs = get_paragraph_text(soup)
         joined_paragraphs = " ".join(paragraphs)
         cleaned_text = clean_text(joined_paragraphs)
-        subtitles = get_subtitles(soup)
+        amount = len(cleaned_text.split())
         title = get_title(soup)
-        paragraphs_by_subtitle = get_paragraphs_by_subtitle(soup)
+        paragraphs_by_subtitle = get_paragraphs_by_tag(soup)
         
         #Returns feos
         return {
-            "csv": {"link": url, "title": title, "subtitles": subtitles.lower(), "text": cleaned_text},
+            "csv": {"link": url, "title": title, "number of words": amount, "text": cleaned_text},
             "json": {title: paragraphs_by_subtitle}
         }
     except Exception as e:
@@ -257,7 +255,7 @@ if os.path.isfile(csv_file): #To avoid having duplicated data in the csv
 
 
 with open(csv_file, mode='a', newline='') as file: #Process for saving the csv file
-    fieldnames = ["link", "title", "subtitles", "text"]
+    fieldnames = ["link", "title", "number of words", "text"]
     writer = csv.DictWriter(file, fieldnames=fieldnames)
     
     if not existing_links:
