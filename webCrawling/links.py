@@ -109,7 +109,8 @@ def get_paragraph_text(soup):
 
 not_allowed_words = ["at", "the", "what", "with", "and", "was", "at", "its", "for", "from", "who", "than", "other", "such"
                      "citation", "needed", "where", "when", "while", "have", "are", "were", "had", "this", "like", "that",
-                     "began", "make", "also", "about", "and"]
+                     "began", "make", "also", "about", "they", "used", "use", "has","some", "many", "most","very", "which", 
+                     "may", "not", "could", "such"]
 
 def filter_string(input_string):
     """Filtros para quitar palabrillas y numeros"""
