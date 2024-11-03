@@ -9,14 +9,22 @@ from fake_useragent import UserAgent
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
+"""
+pip install requests
+pip install beautifulsoup4
+pip install fake-useragent
+pip install joblib
+pip install tqdm
+"""
+
 #Variables:
-depth = 2
-article = "https://en.wikipedia.org/wiki/Spain"
-csv_file = 'wikipedia.csv'
-json_file = 'wikipedia.json'
+depth = 1
+article = "https://en.wikipedia.org/wiki/Fish"
+csv_file = 'lizano.csv'
+json_file = 'lizano.json'
 
 #------------------------------------------------------------------------------------------------
-#                               Estimated data retrieval
+# Estimated data retrieval | From graph related studies in the matter
 #------------------------------------------------------------------------------------------------
 # depth 0 = Single article
 # depth 1 = All related articles
@@ -25,10 +33,9 @@ json_file = 'wikipedia.json'
 # depth 4 = Biggest increase, should fetch at least 50% of all data in wikipedia
 # depth 5 = another increase, equivalent to depth 3
 # depth 6 = small increase, equivalent to depth 2
-# All further depths add negligible amounts of data.
-#------------------------------------------------------------------------------------------------
-# There's an estimated 6.8 million articles for english wikipedia, you will get only about 80% 
-# MAX due to the amount of articles not referenced by anyone or that are too secluded from the rest.
+#
+# All further depths add negligible amounts of data. If the starting article has few links then
+# the data increases described here will be 1 level later
 #------------------------------------------------------------------------------------------------
 
 # Filters for tags
@@ -83,7 +90,7 @@ def get_subtitles(soup):
             subtitle_text = tag.text.strip()
             if subtitle_text.lower() not in exclude_list:
                 subtitles.append(subtitle_text)
-        return " ".join(subtitles)
+        return ",".join(subtitles)
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the page: {e}")
         return None
@@ -240,19 +247,33 @@ data_results = Parallel(n_jobs=-1)(delayed(process_url)(url) for url in tqdm(Lin
 """Esto se va distribuyendo todos los urls encontrados entre tus procesadores"""
 
 print("It is done! Now it's time for writing the results")
-with open(csv_file, mode='w', newline='') as file:
+existing_links = set()
+
+if os.path.isfile(csv_file): #To avoid having duplicated data in the csv
+    with open(csv_file, mode='r', newline='') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            existing_links.add(row["link"])
+
+
+with open(csv_file, mode='a', newline='') as file: #Process for saving the csv file
     fieldnames = ["link", "title", "subtitles", "text"]
     writer = csv.DictWriter(file, fieldnames=fieldnames)
-    writer.writeheader()
+    
+    if not existing_links:
+        writer.writeheader()
     
     for result in tqdm(data_results):
         try:
             if result and "csv" in result:
-                writer.writerow(result["csv"])
+                link = result["csv"]["link"]
+                if link not in existing_links:
+                    writer.writerow(result["csv"])
+                    existing_links.add(link)
         except Exception as e:
             continue
 
-all_articles = {}
+all_articles = {} #To make the JSON
 if os.path.exists(json_file):
     with open(json_file, 'r', encoding='utf-8') as f:
         try:
