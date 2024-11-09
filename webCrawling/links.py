@@ -18,10 +18,10 @@ pip install tqdm
 """
 
 #Variables:
-depth = 1
-article = "https://en.wikipedia.org/wiki/Lizano_sauce"
-csv_file = 'lizano.csv'
-json_file = 'lizano.json'
+depth = 2
+article = "https://en.wikipedia.org/wiki/Spain"
+csv_file = 'C:/Users/Usuario/Desktop/wikipedia.csv'
+json_file = 'C:/Users/Usuario/Desktop/wikipedia.json'
 
 #------------------------------------------------------------------------------------------------
 # Estimated data retrieval | From graph related studies in the matter
@@ -133,7 +133,7 @@ def get_paragraphs_by_tag(soup):
     """Method for web scraping to collect and group text by HTML tags."""
     try:
         content = {}
-        tags_to_collect = ['h1', 'h2', 'h3', 'h4', 'p']
+        tags_to_collect = ['h1', 'h2', 'h3', 'h4', 'p', 'h5', 'h6']
         
         for tag_name in tags_to_collect:
             tag_texts = []
@@ -289,3 +289,13 @@ with open(json_file, 'w', encoding='utf-8') as f:
     json.dump(all_articles, f, ensure_ascii=False, indent=4)
 
 print(f"Done! The data was written into {csv_file} and {json_file}")
+
+"""
+For better info about all of this code, search in the markdown documentation.
+⡀⡀⡀⡀⡀⡀⡀⡀⡀⢀⣿⣿⣿⣿⣿⢹⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀
+⡀⡀⡀⡀⡀⡀⡀⡀⠁⣼⣿⡇⠛⠋⠉⣀⡤⣿⡇⢈⣿⠀⠀⠀⠀⠀    -Code by Wesley
+⠁⠁⠁⠁⠁⠁⠁⠁⠁⣿⣿⡑⠚⠁⢀⢀⡀⣿⣧⣾⣿⡗⢲⡀⡠⠄
+⣀⡀⠁⡂⠂⠁⠡⠈⠁⠿⢻⣿⢄⣀⣀⣀⠔⣿⢻⡿⠋⠠⠄⢝⠀⠀
+⠄⠈⠒⡂⠐⠂⠨⠐⠊⠁⡨⣿⠂⠠⠈⢋⡀⢃⢸⣇⣀⠔⠚⡅⠀⠀
+⠉⠉⠉⠉⢱⠉⠉⠉⠉⠉⢩⡷⠒⠉⠢⣀⠡⠂⣼⣿⠠⠠⠄⢸⠉⠉
+"""
