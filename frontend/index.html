@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador Hadoop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Mini navbar para seleccionar el tipo de búsqueda -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="../assets/world.png" alt="Logo" style="height: 80px; margin-right: 10px; padding-bottom: 10px;">
+                WikiTEC
+            </a>
+            <div class="navbar-nav">
+                <button id="searchByWords" class="btn btn-nav-words mx-2" onclick="setSearchMode('words')">Buscar por Palabras</button>
+                <button id="searchByPage" class="btn btn-nav-pages" onclick="setSearchMode('page')">Buscar por Página</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección de búsqueda -->
+    <div class="container my-4">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Ingrese palabras o página a buscar" id="searchInput">
+            <button class="btn btn-search" onclick="performSearch()">Buscar</button>
+        </div>
+        
+        <!-- Área de resultados -->
+        <div id="resultsContainer" class="mt-4">
+            <h5>Resultados de la Búsqueda:</h5>
+            <div class="list-group" id="resultsList">
+                <!-- Aquí se insertarán los resultados de la búsqueda dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let searchMode = 'words'; // Modo de búsqueda por defecto
+
+        // Cambia el modo de búsqueda según la selección del usuario
+        function setSearchMode(mode) {
+            searchMode = mode;
+            document.getElementById("searchByWords").classList.toggle('active', mode === 'words');
+            document.getElementById("searchByPage").classList.toggle('active', mode === 'page');
+            document.getElementById("searchInput").placeholder = mode === 'words' ? "Ingrese palabras a buscar" : "Ingrese la página a buscar";
+        }
+
+        // Realiza la búsqueda (lógica simulada aquí, implementar en el servidor con Hadoop)
+        function performSearch() {
+            const query = document.getElementById("searchInput").value.trim();
+            document.getElementById("resultsList").innerHTML = ""; // Limpiar resultados anteriores
+
+            // Simulación de resultados de búsqueda
+            const sampleResults = searchMode === 'words' 
+                ? ['Resultado de palabra 1', 'Resultado de palabra 2', 'Resultado de palabra 3']
+                : ['Página encontrada: Página 1', 'Página encontrada: Página 2'];
+
+            sampleResults.forEach(result => {
+                const resultItem = document.createElement('a');
+                resultItem.href = "#"; // Cambiar al enlace real de la página en producción
+                resultItem.classList.add("list-group-item", "list-group-item-action");
+                resultItem.textContent = result;
+                document.getElementById("resultsList").appendChild(resultItem);
+            });
+        }
+    </script>
+</body>
+</html>
