@@ -135,8 +135,43 @@ class septimo(MRJob):
         yield link_word, sum(percentages) / len(percentages) if percentages else 0
 
 #Para cada página ¿Cuáles TAGs contienen más palabras distintas? (Top 10)
+class noveno(MRJob):
+
+    def mapper(self, _, line):
+        try:
+            data = json.loads(line)
+            for page, tags in data.items():
+                for tag, text in tags.items():
+                    words = list(set(text.lower().split()))
+                    yield (page, tag), words
+        except json.JSONDecodeError:
+            return
+
+    def reducer(self, page_tag, words):
+        page, tag = page_tag
+        text = list(set().union(*words))
+        yield page, (tag, len(text))
 
 #Para cada página ¿Cúales TAGs tiene más texto en general? (Top 10)
+class decimo(MRJob):
+
+    def mapper(self, _, line):
+        try:
+            data = json.loads(line)
+            for page, tags in data.items():
+                for tag, text in tags.items():
+                    textLength = len(text)
+                    yield page, (tag, textLength)
+        except json.JSONDecodeError:
+            pass
+
+    def reducer(self, page, tag_length):
+        topTags = sorted(tag_length, key=lambda x: x[1], reverse=True)[:10]
+        yield page, topTags
+
+
+
+
 
 if __name__ == '__main__':
     #primero.run()
@@ -144,5 +179,7 @@ if __name__ == '__main__':
     #tercero.run()
     #cuarto.run()
     #quinto.run()
-    sexto.run()
+    #sexto.run()
     #septimo.run()
+    #noveno.run()
+    decimo.run()
