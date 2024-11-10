@@ -144,5 +144,5 @@ if __name__ == '__main__':
     #tercero.run()
     #cuarto.run()
     #quinto.run()
-    #sexto.run()
-    septimo.run()
+    sexto.run()
+    #septimo.run()

@@ -18,10 +18,10 @@ pip install tqdm
 """
 
 #Variables:
-depth = 2
-article = "https://en.wikipedia.org/wiki/Spain"
+depth = 1
+article = "https://en.wikipedia.org/wiki/Lizano_sauce"
 csv_file = 'C:/Users/Usuario/Desktop/wikipedia.csv'
-json_file = 'C:/Users/Usuario/Desktop/wikipedia.json'
+json_file = 'webCrawling/lizano.json'
 
 #------------------------------------------------------------------------------------------------
 # Estimated data retrieval | From graph related studies in the matter
@@ -278,7 +278,7 @@ if os.path.exists(json_file):
         try:
             all_articles = json.load(f)
         except json.JSONDecodeError:
-            print("Error loading JSON: The file may be corrupted.")
+            print("Error loading JSON: The file may have been corrupted.")
             all_articles = {}
 
 for result in data_results:
@@ -286,16 +286,16 @@ for result in data_results:
         all_articles.update(result["json"])
 
 with open(json_file, 'w', encoding='utf-8') as f:
-    json.dump(all_articles, f, ensure_ascii=False, indent=4)
+    json.dump(all_articles, f)
 
 print(f"Done! The data was written into {csv_file} and {json_file}")
 
 """
 For better info about all of this code, search in the markdown documentation.
 ⡀⡀⡀⡀⡀⡀⡀⡀⡀⢀⣿⣿⣿⣿⣿⢹⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀
-⡀⡀⡀⡀⡀⡀⡀⡀⠁⣼⣿⡇⠛⠋⠉⣀⡤⣿⡇⢈⣿⠀⠀⠀⠀⠀    -Code by Wesley
+⡀⡀⡀⡀⡀⡀⡀⡀⠁⣼⣿⡇⠛⠋⠉⣀⡤⣿⡇⢈⣿⠀⠀⠀⠀⠀    
 ⠁⠁⠁⠁⠁⠁⠁⠁⠁⣿⣿⡑⠚⠁⢀⢀⡀⣿⣧⣾⣿⡗⢲⡀⡠⠄
 ⣀⡀⠁⡂⠂⠁⠡⠈⠁⠿⢻⣿⢄⣀⣀⣀⠔⣿⢻⡿⠋⠠⠄⢝⠀⠀
 ⠄⠈⠒⡂⠐⠂⠨⠐⠊⠁⡨⣿⠂⠠⠈⢋⡀⢃⢸⣇⣀⠔⠚⡅⠀⠀
-⠉⠉⠉⠉⢱⠉⠉⠉⠉⠉⢩⡷⠒⠉⠢⣀⠡⠂⣼⣿⠠⠠⠄⢸⠉⠉
+⠉⠉⠉⠉⢱⠉⠉⠉⠉⠉⢩⡷⠒⠉⠢⣀⠡⠂⣼⣿⠠⠠⠄⢸⠉⠉-Code by Wesley
 """
