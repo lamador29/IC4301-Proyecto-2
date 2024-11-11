@@ -4,8 +4,7 @@ const router = express.Router();
 const controller = require('../controllers/controller');
 
 
-router.get('/showTables', controller.showTables);
-
+router.post('/showTables', controller.showTables);
 
 
 module.exports = router;

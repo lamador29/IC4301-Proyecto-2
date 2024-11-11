@@ -36,7 +36,15 @@ async function fetchTables() {
     document.getElementById("resultsList").innerHTML = ""; // Clear previous results
 
     try {
-        const response = await fetch('/main/showTables');
+        // Make a POST request instead of GET
+        const response = await fetch('/main/showTables', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({}) // Send an empty body if no specific data is needed
+        });
+
         const tables = await response.json();
 
         // Display each table in the results list
