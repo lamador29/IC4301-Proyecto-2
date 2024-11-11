@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,17 +8,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
     <!-- Mini navbar para seleccionar el tipo de búsqueda -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="../assets/world.png" alt="Logo" style="height: 80px; margin-right: 10px; padding-bottom: 10px;">
+                <img src="../assets/world.png" alt="Logo"
+                    style="height: 80px; margin-right: 10px; padding-bottom: 10px;">
                 WikiTEC
             </a>
             <div class="navbar-nav">
-                <button id="searchByWords" class="btn btn-nav-words mx-2" onclick="setSearchMode('words')">Buscar por Palabras</button>
-                <button id="searchByPage" class="btn btn-nav-pages" onclick="setSearchMode('page')">Buscar por Página</button>
+                <button id="searchByWords" class="btn btn-nav-words mx-2" onclick="setSearchMode('words')">Buscar por
+                    Palabras</button>
+                <button id="searchByPage" class="btn btn-nav-pages" onclick="setSearchMode('page')">Buscar por
+                    Página</button>
             </div>
         </div>
     </nav>
@@ -28,7 +33,7 @@
             <input type="text" class="form-control" placeholder="Ingrese palabras o página a buscar" id="searchInput">
             <button class="btn btn-search" onclick="performSearch()">Buscar</button>
         </div>
-        
+
         <!-- Área de resultados -->
         <div id="resultsContainer" class="mt-4">
             <h5>Resultados de la Búsqueda:</h5>
@@ -44,8 +49,21 @@
         // Cambia el modo de búsqueda según la selección del usuario
         function setSearchMode(mode) {
             searchMode = mode;
-            document.getElementById("searchByWords").classList.toggle('active', mode === 'words');
-            document.getElementById("searchByPage").classList.toggle('active', mode === 'page');
+
+            // Get the buttons
+            const wordsButton = document.getElementById("searchByWords");
+            const pageButton = document.getElementById("searchByPage");
+
+            // Toggle the active class
+            if (mode === 'words') {
+                wordsButton.classList.add('active');
+                pageButton.classList.remove('active');
+            } else {
+                pageButton.classList.add('active');
+                wordsButton.classList.remove('active');
+            }
+
+            // Update the placeholder text
             document.getElementById("searchInput").placeholder = mode === 'words' ? "Ingrese palabras a buscar" : "Ingrese la página a buscar";
         }
 
@@ -55,7 +73,7 @@
             document.getElementById("resultsList").innerHTML = ""; // Limpiar resultados anteriores
 
             // Simulación de resultados de búsqueda
-            const sampleResults = searchMode === 'words' 
+            const sampleResults = searchMode === 'words'
                 ? ['Resultado de palabra 1', 'Resultado de palabra 2', 'Resultado de palabra 3']
                 : ['Página encontrada: Página 1', 'Página encontrada: Página 2'];
 
@@ -69,4 +87,5 @@
         }
     </script>
 </body>
+
 </html>
