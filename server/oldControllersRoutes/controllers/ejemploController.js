@@ -1,3 +1,4 @@
+/*
 const mariadbClient = require('../db/mariadb');
 
 
@@ -26,4 +27,4 @@ async function getTables() {
   }
 }
 
-module.exports = getTables;
+module.exports = getTables;*/
