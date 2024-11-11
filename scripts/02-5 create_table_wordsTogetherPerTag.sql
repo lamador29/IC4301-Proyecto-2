@@ -1,3 +1,5 @@
+USE mysql;
+
 CREATE TABLE `wordstogetherpertag` (
 	`id` INT(11) NOT NULL,
 	`page` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',

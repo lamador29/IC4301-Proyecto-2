@@ -43,49 +43,9 @@
         </div>
     </div>
 
-    <script>
-        let searchMode = 'words'; // Modo de búsqueda por defecto
+    
 
-        // Cambia el modo de búsqueda según la selección del usuario
-        function setSearchMode(mode) {
-            searchMode = mode;
-
-            // Get the buttons
-            const wordsButton = document.getElementById("searchByWords");
-            const pageButton = document.getElementById("searchByPage");
-
-            // Toggle the active class
-            if (mode === 'words') {
-                wordsButton.classList.add('active');
-                pageButton.classList.remove('active');
-            } else {
-                pageButton.classList.add('active');
-                wordsButton.classList.remove('active');
-            }
-
-            // Update the placeholder text
-            document.getElementById("searchInput").placeholder = mode === 'words' ? "Ingrese palabras a buscar" : "Ingrese la página a buscar";
-        }
-
-        // Realiza la búsqueda (lógica simulada aquí, implementar en el servidor con Hadoop)
-        function performSearch() {
-            const query = document.getElementById("searchInput").value.trim();
-            document.getElementById("resultsList").innerHTML = ""; // Limpiar resultados anteriores
-
-            // Simulación de resultados de búsqueda
-            const sampleResults = searchMode === 'words'
-                ? ['Resultado de palabra 1', 'Resultado de palabra 2', 'Resultado de palabra 3']
-                : ['Página encontrada: Página 1', 'Página encontrada: Página 2'];
-
-            sampleResults.forEach(result => {
-                const resultItem = document.createElement('a');
-                resultItem.href = "#"; // Cambiar al enlace real de la página en producción
-                resultItem.classList.add("list-group-item", "list-group-item-action");
-                resultItem.textContent = result;
-                document.getElementById("resultsList").appendChild(resultItem);
-            });
-        }
-    </script>
+    <script src="index.js"></script>
 </body>
 
 </html>

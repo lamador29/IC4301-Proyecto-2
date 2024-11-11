@@ -1,3 +1,5 @@
+USE mysql;
+
 CREATE TABLE `pages` (
 	`url` VARCHAR(200) NOT NULL,
 	`title` VARCHAR(100) NOT NULL,
