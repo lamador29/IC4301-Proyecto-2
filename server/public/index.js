@@ -8,41 +8,95 @@ function setSearchMode(mode) {
     document.getElementById("searchByWords").classList.toggle('active', mode === 'words');
     document.getElementById("searchByPage").classList.toggle('active', mode === 'page');
     document.getElementById("searchInput").placeholder = mode === 'words'
-        ? "Ingrese palabras a buscar" 
+        ? "Ingrese palabras a buscar"
         : "Ingrese la página a buscar";
 }
 
-// Performs search based on mode
 function performSearch() {
     const query = document.getElementById("searchInput").value.trim();
-    document.getElementById("resultsList").innerHTML = ""; // Clear previous results
+    document.getElementById("resultsList").innerHTML = "";
 
-    // Sample results based on mode
-    const sampleResults = searchMode === 'words'
-        ? ['Resultado de palabra 1', 'Resultado de palabra 2', 'Resultado de palabra 3']
-        : ['Página encontrada: Página 1', 'Página encontrada: Página 2'];
+    searchTerm = document.getElementById("searchInput").value.toLowerCase();
 
-    sampleResults.forEach(result => {
-        const resultItem = document.createElement('a');
-        resultItem.href = "#"; // Modify to actual link if needed
-        resultItem.classList.add("list-group-item", "list-group-item-action");
-        resultItem.textContent = result;
-        document.getElementById("resultsList").appendChild(resultItem);
-    });
+    if (searchMode === 'words'){
+        fetchWords(searchTerm);
+    } else {
+        fetchPages(searchTerm);
+    }
 }
 
-// Fetches and displays tables from the backend
-async function fetchTables() {
-    document.getElementById("resultsList").innerHTML = ""; // Clear previous results
+async function fetchPages(searchTerm) {
+    document.getElementById("resultsList").innerHTML = "";
 
     try {
-        // Make a POST request instead of GET
+        const response = await fetch('/main/getPages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ searchTerm })
+        });
+
+        const pages = await response.json();
+
+        pages.forEach(page => {
+            const pageItem = document.createElement('a');
+
+            pageItem.href = "#";
+            pageItem.classList.add("list-group-item", "list-group-item-action");
+            pageItem.textContent = page.title;
+
+            const subtitle = document.createElement('p');
+            subtitle.classList.add("table-subtitle");
+            subtitle.textContent = page.url;
+
+            pageItem.appendChild(subtitle);
+
+            document.getElementById("resultsList").appendChild(pageItem);
+        });
+    } catch (error) {
+        console.error('Error fetching pages:', error);
+    }
+}
+
+async function fetchWords(searchTerm) {
+    document.getElementById("resultsList").innerHTML = "";
+
+    try {
+        const response = await fetch('/main/getWords', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ searchTerm })
+        });
+
+        const words = await response.json();
+
+        words.forEach(word => {
+            const wordItem = document.createElement('a');
+
+            wordItem.href = "#";
+            wordItem.classList.add("list-group-item", "list-group-item-action");
+            wordItem.textContent = word.word;
+
+            document.getElementById("resultsList").appendChild(wordItem);
+        });
+    } catch (error) {
+        console.error('Error fetching words:', error);
+    }
+}
+
+async function fetchTables() {
+    document.getElementById("resultsList").innerHTML = "";
+
+    try {
         const response = await fetch('/main/showTables', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({}) // Send an empty body if no specific data is needed
+            body: JSON.stringify({})
         });
 
         const tables = await response.json();
@@ -50,9 +104,17 @@ async function fetchTables() {
         // Display each table in the results list
         tables.forEach(table => {
             const tableItem = document.createElement('a');
+
             tableItem.href = "#";
             tableItem.classList.add("list-group-item", "list-group-item-action");
             tableItem.textContent = table;
+
+            const subtitle = document.createElement('p');
+            subtitle.classList.add("table-subtitle");
+            subtitle.textContent = `Description of ${table}`;
+
+            tableItem.appendChild(subtitle);
+
             document.getElementById("resultsList").appendChild(tableItem);
         });
     } catch (error) {

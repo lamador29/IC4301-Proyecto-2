@@ -1,8 +1,10 @@
 USE mysql;
 
-CREATE TABLE `tags` (
-	`tag` VARCHAR(50) NOT NULL,
-	PRIMARY KEY (`tag`)
+CREATE TABLE `pages` (
+	`url` VARCHAR(200) NOT NULL,
+	`title` VARCHAR(100) NOT NULL,
+	`wordTotal` INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (`url`)
 )
 COLLATE='latin1_swedish_ci'
 ;
