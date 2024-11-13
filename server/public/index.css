@@ -38,12 +38,12 @@ body {
 }
 
 .btn-search {
-    background-color: #DA8359;
+    background-color: #e8c99b;
     font-size: 1.25rem;
 }
 
 .btn-search:hover {
-    background-color: #f4ac88;
+    background-color: #e6b163;
     font-size: 1.25rem;
 }
 

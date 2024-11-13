@@ -1,0 +1,89 @@
+body {
+    background-color: #FCFAEE;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.navbar {
+    background-color: #A5B68D;
+}
+
+.navbar-brand {
+    font-size: 3rem;
+}
+
+.btn-nav-words {
+    background-color: #ECDFCC;
+    font-size: 1.25rem;
+}
+
+.btn-nav-words:hover,
+.btn-nav-words:active:focus,
+.btn-nav-words:focus {
+    background-color: #e8c99b;
+}
+
+.btn-nav-pages {
+    background-color: #ECDFCC;
+    font-size: 1.25rem;
+}
+
+.btn-nav-pages:hover,
+.btn-nav-pages:active:focus,
+.btn-nav-pages:focus {
+    background-color: #e8c99b;
+}
+
+.btn-back {
+    background-color: #e8c99b;
+    font-size: 1.25rem;
+}
+
+.btn-back:hover {
+    background-color: #e6b163;
+    font-size: 1.25rem;
+}
+
+.percentage-container{
+    background-color: #f3d9b3;
+    padding: 1rem;
+    border-radius: 30px;
+}
+
+.percentage-container .table {
+    border-color: #683e1d; /* Replace with your desired color */
+}
+
+.percentage-container .table th,
+.percentage-container .table td {
+    border-color: #683e1d; /* Replace with your desired color */
+}
+
+.top10-unique-container{
+    background-color: #e4cca8;
+    padding: 1rem;
+    border-radius: 30px;
+}
+
+.top10-unique-container .table {
+    border-color: #683e1d; /* Replace with your desired color */
+}
+
+.top10-unique-container .table th,
+.top10-unique-container .table td {
+    border-color: #683e1d; /* Replace with your desired color */
+}
+
+.top10-most-container{
+    background-color: #d3bd9c;
+    padding: 1rem;
+    border-radius: 30px;
+}
+
+.top10-most-container .table {
+    border-color: #683e1d; /* Replace with your desired color */
+}
+
+.top10-most-container .table th,
+.top10-most-container .table td {
+    border-color: #683e1d; /* Replace with your desired color */
+}
