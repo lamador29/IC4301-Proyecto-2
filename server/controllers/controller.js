@@ -30,7 +30,7 @@ async function getPages(req, res) {
     await conn.query('USE mysql');
     
     const pages = await conn.query(
-      "SELECT url, title, wordTotal FROM pages WHERE title LIKE ?",
+      "SELECT url, title, wordTotal FROM pages WHERE title LIKE ? LIMIT 100",
       [`%${searchTerm}%`]
     );
 
@@ -54,7 +54,7 @@ async function getWords(req, res) {
     await conn.query('USE mysql');
 
     const pages = await conn.query(
-      "SELECT word FROM wordspertag WHERE word LIKE ?",
+      "SELECT word FROM wordspertag WHERE word LIKE ? LIMIT 100",
       [`%${searchTerm}%`]
     );
 
