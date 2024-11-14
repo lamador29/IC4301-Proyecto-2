@@ -112,10 +112,20 @@ async function fetchTables() {
             const subtitle = document.createElement('p');
             subtitle.classList.add("table-subtitle");
             subtitle.textContent = `Description of ${table}`;
-
             tableItem.appendChild(subtitle);
 
+            console.log("Created page item:", pageItem);
+
             document.getElementById("resultsList").appendChild(tableItem);
+
+            setTimeout(() => {
+                pageItem.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log("Click event triggered!");
+                    localStorage.setItem('pageUrl', page.url);
+                    window.location.href = 'public/pageDetail.html';
+                });
+            }, 0);
         });
     } catch (error) {
         console.error('Error fetching tables:', error);
