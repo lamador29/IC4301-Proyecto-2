@@ -18,10 +18,10 @@ pip install tqdm
 """
 
 #Variables:
-depth = 1
-article = "https://en.wikipedia.org/wiki/Lizano_sauce"
+depth = 2
+article = "https://en.wikipedia.org/wiki/spain"
 csv_file = 'C:/Users/Usuario/Desktop/wikipedia.csv'
-json_file = 'webCrawling/lizano.json'
+json_file = 'C:/Users/Usuario/Desktop/wikipedia.json'
 
 #------------------------------------------------------------------------------------------------
 # Estimated data retrieval | From graph related studies in the matter
@@ -53,9 +53,7 @@ def get_links(url):
         response = requests.get(url, headers = {'User-agent': randomguy})
 
         if response.status_code == 429:
-            print("Wikipedia stopped you for procesing way too much")
-            time.sleep(int(response.headers["Retry-After"]))
-            print("Here we are again!")
+            time.sleep(60)
             response = requests.get(url, headers = {'User-agent': randomguy})
 
         response.raise_for_status()
@@ -103,7 +101,7 @@ def get_paragraph_text(soup):
         
         return paragraphs
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching the page: {e}")
+        #print(f"Error fetching the page: {e}")
         return None
 
 
@@ -228,7 +226,7 @@ def process_url(url):
             "json": {title: paragraphs_by_subtitle}
         }
     except Exception as e:
-        #print(f"Error processing {url}: {e}")
+        #print(f"Error processing {url}: {e}") Irrelevante.
         return None
 #------------------------------------------------------------------------------------------------
 # Retrieving the data for the links | You can see the steps the program takes here.
@@ -255,7 +253,7 @@ if os.path.isfile(csv_file): #To avoid having duplicated data in the csv
             existing_links.add(row["link"])
 
 
-with open(csv_file, mode='a', newline='') as file: #Process for saving the csv file
+with open(csv_file, mode='a', newline='', encoding='utf-8') as file: #Process for saving the csv file
     fieldnames = ["link", "title", "number of words", "text"]
     writer = csv.DictWriter(file, fieldnames=fieldnames)
     
@@ -291,11 +289,12 @@ with open(json_file, 'w', encoding='utf-8') as f:
 print(f"Done! The data was written into {csv_file} and {json_file}")
 
 """
-For better info about all of this code, search in the markdown documentation.
+For more info about this code, check the documentation. 
 ⡀⡀⡀⡀⡀⡀⡀⡀⡀⢀⣿⣿⣿⣿⣿⢹⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀
-⡀⡀⡀⡀⡀⡀⡀⡀⠁⣼⣿⡇⠛⠋⠉⣀⡤⣿⡇⢈⣿⠀⠀⠀⠀⠀    
+⡀⡀⡀⡀⡀⡀⡀⡀⠁⣼⣿⡇⠛⠋⠉⣀⡤⣿⡇⢈⣿⠀⠀⠀⠀⠀
 ⠁⠁⠁⠁⠁⠁⠁⠁⠁⣿⣿⡑⠚⠁⢀⢀⡀⣿⣧⣾⣿⡗⢲⡀⡠⠄
 ⣀⡀⠁⡂⠂⠁⠡⠈⠁⠿⢻⣿⢄⣀⣀⣀⠔⣿⢻⡿⠋⠠⠄⢝⠀⠀
 ⠄⠈⠒⡂⠐⠂⠨⠐⠊⠁⡨⣿⠂⠠⠈⢋⡀⢃⢸⣇⣀⠔⠚⡅⠀⠀
-⠉⠉⠉⠉⢱⠉⠉⠉⠉⠉⢩⡷⠒⠉⠢⣀⠡⠂⣼⣿⠠⠠⠄⢸⠉⠉-Code by Wesley
+⠉⠉⠉⠉⢱⠉⠉⠉⠉⠉⢩⡷⠒⠉⠢⣀⠡⠂⣼⣿⠠⠠⠄⢸⠉⠉
+Status: It's now totaly complete for this project's specifications, hurray!
 """
