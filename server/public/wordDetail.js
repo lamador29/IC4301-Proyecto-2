@@ -1,4 +1,4 @@
-localStorage.setItem('pageUrl', 'https://wikipedia.org/wiki/New_York_(state)');
+localStorage.setItem('word', 'https://wikipedia.org/wiki/New_York_(state)');
 
 async function fetchPage() {
     document.getElementById("page-title").innerHTML = "";
@@ -79,64 +79,6 @@ async function fetchPage() {
         });
 
     } catch (error) {
-        console.error('Error fetching page:', error);
+        console.error('Error fetching word:', error);
     }
 }
-
-function getUniqueWordsData(words) {
-    // Process words to get unique word counts by tag
-    const tagUniqueWords = {};
-    words.forEach(word => {
-        if (!tagUniqueWords[word.tag]) tagUniqueWords[word.tag] = new Set();
-        tagUniqueWords[word.tag].add(word.word);
-    });
-    return Object.entries(tagUniqueWords)
-        .map(([tag, uniqueWords]) => ({ tag, uniqueWordCount: uniqueWords.size }))
-        .sort((a, b) => b.uniqueWordCount - a.uniqueWordCount)
-        .slice(0, 10);
-}
-
-function getOrderedWords(words) {
-    // Sort the words array by the amount in descending order
-    const sortedWords = words.sort((a, b) => b.amount - a.amount);
-    return sortedWords.slice(0, 50);
-}
-
-function combinateOrderedWords(words) {
-    const wordCounts = {};
-
-    // Accumulate amounts of each unique word, ignoring tags
-    words.forEach(item => {
-        const word = item.word;
-        if (wordCounts[word]) {
-            wordCounts[word].amount += item.amount;
-        } else {
-            wordCounts[word] = { word: word, amount: item.amount };
-        }
-    });
-
-    combinatedWords = Object.values(wordCounts);
-    return getOrderedWords(combinatedWords)
-}
-
-function getTotalWordsData(words) {
-    // Process words to get total word counts by tag
-    const tagTotalWords = {};
-    words.forEach(word => {
-        if (!tagTotalWords[word.tag]) tagTotalWords[word.tag] = 0;
-        tagTotalWords[word.tag] += word.amount;
-    });
-    return Object.entries(tagTotalWords)
-        .map(([tag, totalWordCount]) => ({ tag, totalWordCount }))
-        .sort((a, b) => b.totalWordCount - a.totalWordCount)
-        .slice(0, 10);
-}
-
-function capitalizeText(text) {
-    return text
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-}
-
-fetchPage();

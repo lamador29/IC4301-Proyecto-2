@@ -82,22 +82,12 @@ async function getPageInfo(req, res) {
       [url]
     );
 
-    /*
+    
     const words = await conn.query(
       "SELECT word, tag, amount FROM wordspertag WHERE page = ?",
-      [url]
-    );*/
+      [page[0].title]
+    );
 
-    const words = [
-      { word: "home", tag: "h1", amount: 300 },
-      { word: "about", tag: "p", amount: 600 },
-      { word: "contact", tag: "h1", amount: 150 },
-      { word: "home", tag: "h2", amount: 100 },
-      { word: "xd", tag: "h3", amount: 50 }
-    ];
-
-    console.log(page);
-    console.log(words);
     res.json({ page, words });
 
   } catch (error) {

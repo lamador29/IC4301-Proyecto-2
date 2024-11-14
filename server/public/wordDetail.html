@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webpage Analysis</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="pageDetail.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container d-flex align-items-center py-4">
+            <!-- Back Button -->
+            <a href="index.html" class="btn btn-back mr-2">&larr; Atrás</a>
+            <h1 class="h1 mb-0 ml-4">Información de la Página</h1>
+        </div>
+    </nav>
+    <div class="container py-4">
+        <!-- Webpage Info -->
+        <div class="mb-4 info-container">
+            <h2 class="h2" id="page-title">Título de la Página</h2>
+            <p class="h4"><strong>URL:</strong> <span id="page-url">https://example.com</span></p>
+            <p class="h4"><strong>Total de Palabras:</strong> <span id="total-words">1234</span></p>
+        </div>
+
+        <!-- Word Percentage Table -->
+        <div class="mb-4 percentage-container">
+            <h3 class="h6">Frecuencia de las Palabras</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Palabra</th>
+                        <th scope="col">Porcentaje</th>
+                    </tr>
+                </thead>
+                <tbody id="word-percentage-table">
+                    <!-- Example Row -->
+                    <tr>
+                        <td>ejemplo</td>
+                        <td>5%</td>
+                    </tr>
+                    <!-- Add additional rows dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Top 10 Tags with Most Unique Words -->
+        <div class="mb-4 top10-unique-container">
+            <h3 class="h6">Top 10 Tags con Más Palabras Diferentes</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Palabras DIferentes</th>
+                    </tr>
+                </thead>
+                <tbody id="unique-words-table">
+                    <!-- Example Row -->
+                    <tr>
+                        <td>&lt;p&gt;</td>
+                        <td>123</td>
+                    </tr>
+                    <!-- Add additional rows dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Top 10 Tags with Most Words -->
+        <div class="mb-5 top10-most-container">
+            <h3 class="h6">Top 10 Tags con Más Palabras</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Cantidad de Palabras</th>
+                    </tr>
+                </thead>
+                <tbody id="total-words-table">
+                    <!-- Example Row -->
+                    <tr>
+                        <td>&lt;h1&gt;</td>
+                        <td>456</td>
+                    </tr>
+                    <!-- Add additional rows dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="wordDetail.js"></script>
+</body>
+
+</html>
