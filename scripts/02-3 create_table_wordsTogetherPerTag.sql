@@ -1,4 +1,4 @@
-USE mysql;
+USE proyecto1;
 
 CREATE TABLE `wordstogetherpertag` (
 	`id` INT(11) NOT NULL,

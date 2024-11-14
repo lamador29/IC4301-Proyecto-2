@@ -5,7 +5,7 @@ const config = {
   port: 3004,
   user: 'proyecto1',
   password: '12345',
-  database: 'mysql'
+  database: 'proyecto1'
 };
 
 const client = mariadb.createPool(config);

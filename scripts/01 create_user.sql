@@ -1,4 +1,4 @@
-USE mysql;
+USE proyecto1;
 
 CREATE USER 'proyecto1'@'localhost' IDENTIFIED BY '12345';
 

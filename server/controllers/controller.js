@@ -6,7 +6,7 @@ async function showTables(req, res) {
   try {
     conn = await mariadbClient.getConnection();
 
-    await conn.query('USE mysql');
+    await conn.query('USE proyecto1');
     const tables = await conn.query("SHOW TABLES");
     const tableNames = tables.map(row => Object.values(row)[0]);
  
@@ -27,7 +27,7 @@ async function getPages(req, res) {
 
   try {
     conn = await mariadbClient.getConnection();
-    await conn.query('USE mysql');
+    await conn.query('USE proyecto1');
     
     const pages = await conn.query(
       "SELECT url, title, wordTotal FROM pages WHERE title LIKE ? LIMIT 100",
@@ -51,7 +51,7 @@ async function getWords(req, res) {
 
   try {
     conn = await mariadbClient.getConnection();
-    await conn.query('USE mysql');
+    await conn.query('USE proyecto1');
 
     const pages = await conn.query(
       "SELECT word FROM wordspertag WHERE word LIKE ? LIMIT 100",
@@ -75,7 +75,7 @@ async function getPageInfo(req, res) {
 
   try {
     conn = await mariadbClient.getConnection();
-    await conn.query('USE mysql');
+    await conn.query('USE proyecto1');
     
     const page = await conn.query(
       "SELECT url, title, wordTotal FROM pages WHERE url = ?",

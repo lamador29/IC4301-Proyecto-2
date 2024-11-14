@@ -1,4 +1,4 @@
-USE mysql;
+USE proyecto1;
 
 CREATE TABLE `pages` (
 	`url` VARCHAR(200) NOT NULL COLLATE 'latin1_swedish_ci',
