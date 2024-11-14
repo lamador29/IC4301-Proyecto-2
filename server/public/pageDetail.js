@@ -1,5 +1,3 @@
-localStorage.setItem('pageUrl', 'https://wikipedia.org/wiki/New_York_(state)');
-
 async function fetchPage() {
     document.getElementById("page-title").innerHTML = "";
     document.getElementById("page-url").innerHTML = "";

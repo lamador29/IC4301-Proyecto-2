@@ -51,8 +51,14 @@ async function fetchPages(searchTerm) {
             subtitle.textContent = page.url;
 
             pageItem.appendChild(subtitle);
-
             document.getElementById("resultsList").appendChild(pageItem);
+
+            // Evento para guardar el URL en localStorage y redirigir
+            pageItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('pageUrl', page.url);  // Guarda el URL en localStorage
+                window.location.href = '/pageDetail.html';  // Redirige a pageDetail.html
+            });
         });
     } catch (error) {
         console.error('Error fetching pages:', error);
@@ -123,7 +129,7 @@ async function fetchTables() {
                     e.preventDefault();
                     console.log("Click event triggered!");
                     localStorage.setItem('pageUrl', page.url);
-                    window.location.href = 'public/pageDetail.html';
+                    window.location.href = '/pageDetail.html';
                 });
             }, 0);
         });
