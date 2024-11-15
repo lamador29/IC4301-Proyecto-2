@@ -86,6 +86,13 @@ async function fetchWords(searchTerm) {
             wordItem.textContent = word.word;
 
             document.getElementById("resultsList").appendChild(wordItem);
+
+            // Evento para guardar la palabra en localStorage y redirigir
+            wordItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('wordDetail', word.word);  // Guarda la palabra en localStorage
+                window.location.href = '/wordDetail.html';  // Redirige a wordDetail.html
+            });
         });
     } catch (error) {
         console.error('Error fetching words:', error);
