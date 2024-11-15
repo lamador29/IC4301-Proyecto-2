@@ -53,11 +53,10 @@ async function fetchPages(searchTerm) {
             pageItem.appendChild(subtitle);
             document.getElementById("resultsList").appendChild(pageItem);
 
-            // Evento para guardar el URL en localStorage y redirigir
             pageItem.addEventListener('click', (e) => {
                 e.preventDefault();
-                localStorage.setItem('pageUrl', page.url);  // Guarda el URL en localStorage
-                window.location.href = '/pageDetail.html';  // Redirige a pageDetail.html
+                localStorage.setItem('pageUrl', page.url);  
+                window.location.href = '/pageDetail.html';  
             });
         });
     } catch (error) {
