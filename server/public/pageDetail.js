@@ -24,7 +24,6 @@ async function fetchPage() {
         document.getElementById("page-url").innerHTML = pageInfo.url;
         document.getElementById("total-words").innerHTML = pageInfo.wordTotal;
 
-
         // Word Percentage Table
         const orderedWords = combinateOrderedWords(words);
         orderedWords.forEach(word => {
@@ -32,12 +31,22 @@ async function fetchPage() {
             const wordCell = document.createElement('td');
             const percentageCell = document.createElement('td');
 
-            wordCell.textContent = word.word;
+            // Crea un enlace para la palabra que redirige a wordDetail.html
+            const wordLink = document.createElement('a');
+            wordLink.href = "#";
+            wordLink.textContent = word.word;
+            wordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('wordDetail', word.word);  // Guarda la palabra en localStorage
+                window.location.href = '/wordDetail.html';  // Redirige a wordDetail.html
+            });
 
+            // Añade el enlace a la celda de palabra
+            wordCell.appendChild(wordLink);
+
+            // Calcula el porcentaje y lo asigna a la celda de porcentaje
             const totalWords = pageInfo.wordTotal || 0;
             const wordAmount = word.amount || 0;
-            console.log(totalWords);
-            console.log(wordAmount);
             const percentage = totalWords > 0 ? ((wordAmount / totalWords) * 100).toFixed(2) + "%" : "-%";
             percentageCell.textContent = percentage;
 
@@ -113,8 +122,7 @@ function combinateOrderedWords(words) {
         }
     });
 
-    combinatedWords = Object.values(wordCounts);
-    return getOrderedWords(combinatedWords)
+    return getOrderedWords(Object.values(wordCounts));
 }
 
 function getTotalWordsData(words) {
