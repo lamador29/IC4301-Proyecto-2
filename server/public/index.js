@@ -1,4 +1,4 @@
-let searchMode = 'words'; // Default search mode
+let searchMode = 'page'; // Default search mode
 
 // Sets the search mode based on user selection
 function setSearchMode(mode) {
@@ -99,52 +99,7 @@ async function fetchWords(searchTerm) {
     }
 }
 
-async function fetchTables() {
-    document.getElementById("resultsList").innerHTML = "";
-
-    try {
-        const response = await fetch('/main/showTables', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        });
-
-        const tables = await response.json();
-
-        // Display each table in the results list
-        tables.forEach(table => {
-            const tableItem = document.createElement('a');
-
-            tableItem.href = "#";
-            tableItem.classList.add("list-group-item", "list-group-item-action");
-            tableItem.textContent = table;
-
-            const subtitle = document.createElement('p');
-            subtitle.classList.add("table-subtitle");
-            subtitle.textContent = `Description of ${table}`;
-            tableItem.appendChild(subtitle);
-
-            console.log("Created page item:", pageItem);
-
-            document.getElementById("resultsList").appendChild(tableItem);
-
-            setTimeout(() => {
-                pageItem.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    console.log("Click event triggered!");
-                    localStorage.setItem('pageUrl', page.url);
-                    window.location.href = '/pageDetail.html';
-                });
-            }, 0);
-        });
-    } catch (error) {
-        console.error('Error fetching tables:', error);
-    }
-}
 
 // Expose functions globally
 window.setSearchMode = setSearchMode;
 window.performSearch = performSearch;
-window.fetchTables = fetchTables;
