@@ -14,19 +14,20 @@ function setSearchMode(mode) {
 
 function performSearch() {
     const query = document.getElementById("searchInput").value.trim();
-    document.getElementById("resultsList").innerHTML = "";
 
-    searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    stringSearchTerm = document.getElementById("searchInput").value.toLowerCase();
 
     if (searchMode === 'words'){
+        searchTerm = stringSearchTerm;
         fetchWords(searchTerm);
     } else {
+        searchTerm = formatForInClause(stringSearchTerm);
         fetchPages(searchTerm);
     }
 }
 
 async function fetchPages(searchTerm) {
-    document.getElementById("resultsList").innerHTML = "";
+    document.getElementById("resultsList").innerHTML = "Realizando consulta...";
 
     try {
         const response = await fetch('/main/getPages', {
@@ -39,12 +40,13 @@ async function fetchPages(searchTerm) {
 
         const pages = await response.json();
 
+        document.getElementById("resultsList").innerHTML = "";
         pages.forEach(page => {
             const pageItem = document.createElement('a');
 
             pageItem.href = "#";
             pageItem.classList.add("list-group-item", "list-group-item-action");
-            pageItem.textContent = page.title;
+            pageItem.textContent = capitalizeText(page.page);
 
             const subtitle = document.createElement('p');
             subtitle.classList.add("table-subtitle");
@@ -55,17 +57,18 @@ async function fetchPages(searchTerm) {
 
             pageItem.addEventListener('click', (e) => {
                 e.preventDefault();
-                localStorage.setItem('pageName', page.title);   
+                localStorage.setItem('pageName', page.page);   
                 window.location.href = '/pageDetail.html';  
             });
         });
     } catch (error) {
+        document.getElementById("resultsList").innerHTML = "Error al realizar consulta";
         console.error('Error fetching pages:', error);
     }
 }
 
 async function fetchWords(searchTerm) {
-    document.getElementById("resultsList").innerHTML = "";
+    document.getElementById("resultsList").innerHTML = "Realizando consulta...";
 
     try {
         const response = await fetch('/main/getWords', {
@@ -78,6 +81,7 @@ async function fetchWords(searchTerm) {
 
         const words = await response.json();
 
+        document.getElementById("resultsList").innerHTML = "";
         words.forEach(word => {
             const wordItem = document.createElement('a');
 
@@ -99,6 +103,16 @@ async function fetchWords(searchTerm) {
     }
 }
 
+function formatForInClause(str) {
+    return str.split(' ').map(word => `'${word}'`).join(', ');
+}
+
+function capitalizeText(text) {
+    return text
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
 
 // Expose functions globally
 window.setSearchMode = setSearchMode;
