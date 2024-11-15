@@ -55,7 +55,7 @@ async function fetchPages(searchTerm) {
 
             pageItem.addEventListener('click', (e) => {
                 e.preventDefault();
-                localStorage.setItem('pageUrl', page.url);  
+                localStorage.setItem('pageName', page.title);   
                 window.location.href = '/pageDetail.html';  
             });
         });

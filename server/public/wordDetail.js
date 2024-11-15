@@ -1,84 +1,119 @@
-localStorage.setItem('word', 'https://wikipedia.org/wiki/New_York_(state)');
 
-async function fetchPage() {
+async function fetchWord() {
     document.getElementById("page-title").innerHTML = "";
-    document.getElementById("page-url").innerHTML = "";
-    document.getElementById("total-words").innerHTML = "";
-    document.getElementById("word-percentage-table").innerHTML = "";
-    document.getElementById("unique-words-table").innerHTML = "";
-    document.getElementById("total-words-table").innerHTML = "";
+    document.getElementById("total-pages").innerHTML = "Cargando...";
+    document.getElementById("word-table").innerHTML = "Realizando consulta...";
+    document.getElementById("page-table").innerHTML = "Realizando consulta...";
+    document.getElementById("page-tag-table").innerHTML = "Realizando consulta...";
 
-    const url = localStorage.getItem('pageUrl');
+    const word = localStorage.getItem('wordDetail');
 
     try {
-        const response = await fetch('/main/getPageInfo', {
+        document.getElementById("page-title").innerHTML = capitalizeText(word);
+
+        const wikiResponse = await fetch('/main/getWikipedia', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ url })
+        });
+        
+        const response = await fetch('/main/getWordInfo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ word })
         });
 
-        const { page, words } = await response.json();
+        const { wordDetails } = await response.json();
+        const { wikipedia } = await wikiResponse.json();
 
-        const pageInfo = Array.isArray(page) && page.length > 0 ? page[0] : null;
-        document.getElementById("page-title").innerHTML = capitalizeText(pageInfo.title);
-        document.getElementById("page-url").innerHTML = pageInfo.url;
-        document.getElementById("total-words").innerHTML = pageInfo.wordTotal;
+        document.getElementById("total-pages").innerHTML = wordDetails.length + " sitios distintos";
+        document.getElementById("word-table").innerHTML = "";
+        document.getElementById("page-table").innerHTML = "";
+        document.getElementById("page-tag-table").innerHTML = "";
 
+        const totalAmountOfWord = wordDetails.reduce((sum, { amount }) => sum + amount, 0);
+        const wiki = wikipedia[0];
 
-        // Word Percentage Table
-        const orderedWords = combinateOrderedWords(words);
-        orderedWords.forEach(word => {
+        const row = document.createElement('tr');
+        const amountCell = document.createElement('td');
+        const wikiCell = document.createElement('td');
+        amountCell.textContent = totalAmountOfWord;
+        wikiCell.textContent = (totalAmountOfWord * 100 / wiki.amountWords) + "%";
+        row.appendChild(amountCell);
+        row.appendChild(wikiCell);
+        document.getElementById("word-table").appendChild(row);
+
+        const orderedTotal = getTotal100(wordDetails);
+        orderedTotal.forEach(wordDetail => {
             const row = document.createElement('tr');
             const wordCell = document.createElement('td');
-            const percentageCell = document.createElement('td');
+            const amountCell = document.createElement('td');
 
-            wordCell.textContent = word.word;
+            amountCell.textContent = wordDetail.totalAmount;
 
-            const totalWords = pageInfo.wordTotal || 0;
-            const wordAmount = word.amount || 0;
-            console.log(totalWords);
-            console.log(wordAmount);
-            const percentage = totalWords > 0 ? ((wordAmount / totalWords) * 100).toFixed(2) + "%" : "-%";
-            percentageCell.textContent = percentage;
+            const pageLink = document.createElement('a');
+            pageLink.href = "#";
+            pageLink.textContent = capitalizeText(wordDetail.page);
+            pageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('pageName', wordDetail.page);  
+                window.location.href = '/pageDetail.html';  
+            });
+            wordCell.appendChild(pageLink);
 
             row.appendChild(wordCell);
-            row.appendChild(percentageCell);
-            document.getElementById("word-percentage-table").appendChild(row);
+            row.appendChild(amountCell);
+            document.getElementById("page-table").appendChild(row);
         });
 
-        // Unique Words by Tag (Top 10)
-        const uniqueWordsData = getUniqueWordsData(words);
-        uniqueWordsData.forEach(tagData => {
+        const top100 = getTop100(wordDetails);
+        top100.forEach(wordDetail => {
             const row = document.createElement('tr');
+            const wordCell = document.createElement('td');
             const tagCell = document.createElement('td');
-            const uniqueWordCountCell = document.createElement('td');
+            const amountCell = document.createElement('td');
 
-            tagCell.textContent = tagData.tag;
-            uniqueWordCountCell.textContent = tagData.uniqueWordCount;
+            wordCell.textContent = capitalizeText(wordDetail.page);
+            tagCell.textContent = capitalizeText(wordDetail.tag);
+            amountCell.textContent = wordDetail.amount;
 
+            row.appendChild(wordCell);
             row.appendChild(tagCell);
-            row.appendChild(uniqueWordCountCell);
-            document.getElementById("unique-words-table").appendChild(row);
-        });
-
-        // Total Words by Tag (Top 10)
-        const totalWordsData = getTotalWordsData(words);
-        totalWordsData.forEach(tagData => {
-            const row = document.createElement('tr');
-            const tagCell = document.createElement('td');
-            const totalWordCountCell = document.createElement('td');
-
-            tagCell.textContent = tagData.tag;
-            totalWordCountCell.textContent = tagData.totalWordCount;
-
-            row.appendChild(tagCell);
-            row.appendChild(totalWordCountCell);
-            document.getElementById("total-words-table").appendChild(row);
+            row.appendChild(amountCell);
+            document.getElementById("page-tag-table").appendChild(row);
         });
 
     } catch (error) {
         console.error('Error fetching word:', error);
     }
 }
+
+function getTotal100(words) {
+    const result = Object.values(
+        words.reduce((acc, { page, amount }) => {
+          if (!acc[page]) {
+            acc[page] = { page, totalAmount: 0 };
+          }
+          acc[page].totalAmount += amount;
+          return acc;
+        }, {})
+      ).map(({ page, totalAmount }) => ({ page, totalAmount }));
+
+    return result.slice(0, 100);
+}
+
+function getTop100(words) {
+    return words.slice(0, 100);
+}
+
+function capitalizeText(text) {
+    return text
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+fetchWord()

@@ -71,18 +71,17 @@ async function getWords(req, res) {
 
 async function getPageInfo(req, res) {
   let conn;
-  const { url } = req.body;
+  const { name } = req.body;
 
   try {
     conn = await mariadbClient.getConnection();
     await conn.query('USE proyecto1');
     
     const page = await conn.query(
-      "SELECT url, title, wordTotal FROM pages WHERE url = ?",
-      [url]
+      "SELECT url, title, wordTotal FROM pages WHERE title = ?",
+      [name]
     );
 
-    
     const words = await conn.query(
       "SELECT word, tag, amount FROM wordspertag WHERE page = ?",
       [page[0].title]
@@ -99,4 +98,50 @@ async function getPageInfo(req, res) {
   }
 }
 
-module.exports = { showTables, getPages, getWords, getPageInfo };
+async function getWordInfo(req, res) {
+  let conn;
+  const { word } = req.body;
+
+  try {
+    conn = await mariadbClient.getConnection();
+    await conn.query('USE proyecto1');
+    
+    const wordDetails = await conn.query(
+      "SELECT page, tag, amount FROM wordspertag WHERE	word = ?  ORDER BY amount DESC",
+      [word]
+    );
+
+    res.json({ wordDetails });
+
+  } catch (error) {
+    console.error("Error en la conexión o consulta:", error);
+    res.status(500).json({ error: "Error en la conexión o consulta" });
+
+  } finally {
+    if (conn) conn.release();
+  }
+}
+
+async function getWikipedia(req, res) {
+  let conn;
+
+  try {
+    conn = await mariadbClient.getConnection();
+    await conn.query('USE proyecto1');
+    
+    const wikipedia = await conn.query(
+      "SELECT * FROM wikipedia",
+    );
+
+    res.json({ wikipedia });
+
+  } catch (error) {
+    console.error("Error en la conexión o consulta:", error);
+    res.status(500).json({ error: "Error en la conexión o consulta" });
+
+  } finally {
+    if (conn) conn.release();
+  }
+}
+
+module.exports = { showTables, getPages, getWords, getPageInfo, getWordInfo, getWikipedia };

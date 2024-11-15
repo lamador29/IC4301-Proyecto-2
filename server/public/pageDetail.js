@@ -6,7 +6,7 @@ async function fetchPage() {
     document.getElementById("unique-words-table").innerHTML = "";
     document.getElementById("total-words-table").innerHTML = "";
 
-    const url = localStorage.getItem('pageUrl');
+    const name = localStorage.getItem('pageName');
 
     try {
         const response = await fetch('/main/getPageInfo', {
@@ -14,7 +14,7 @@ async function fetchPage() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ url })
+            body: JSON.stringify({ name })
         });
 
         const { page, words } = await response.json();
