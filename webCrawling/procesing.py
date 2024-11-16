@@ -3,7 +3,11 @@ import csv
 from collections import Counter
 from math import ceil
 
-#                       Here be dragons.
+#Here be dragons.
+# La funcion tiene una funcion al final, se usa para procesar los datos que se obtienen del mapreduce. Para usarlo se requiere que 
+# en consola al convocar los mapreducers se coloque como archivo de salida a un txt, la funcion allá en el fondo "doBoth". Se
+# necesita el txt del 5 como primer parametro, el 6 como segundo, el csv que obtienes del webscraping como tercero, el cuarto es
+# para el directorio donde se quiere dejar el resultado del 5, el ultimo parametro es lo mismo que el anterior pero para el 6.
 
 txt_file1 = "C:\\Users\\Usuario\\Desktop\\test5.txt"
 txt_file2 = "C:\\Users\\Usuario\\Desktop\\test6.txt"
@@ -354,6 +358,15 @@ txt_to_csv5(txt_file, "C:\\Users\\Usuario\\Desktop\\quinto.csv")
 #print("Yay?")
 
 def DoBoth(csv5, csv6, pagescsv, dirCSV5, dirCSV6):
+    """
+    Hacerlo absolutamente todo de un solo. Produce los resultados de TODAS las tablas de este proyecto.
+    Parametros: 
+    csv5:       En realidad es un archivo de texto, lo obtienes con mapReduce a la funcion 5
+    csv6:       En realidad es un archivo de texto, lo obtienes con mapReduce a la funcion 6
+    pagescsv:   Es el csv que se obtiene con webscraping
+    dirCSV5:    Directorio para los resultados del ejercicio 5, son los datos de wordsPerTag
+    dirCSV6:    Directorio para los resultados del ejercicio 5, son los datos de wordsTogetherPerTag
+    """
     print("Step 0: csv for pages table")
     newCSV = pagescsv+"1.csv"
     newCSV2 = pagescsv+"2.csv"
@@ -417,10 +430,10 @@ def DoBoth(csv5, csv6, pagescsv, dirCSV5, dirCSV6):
     print_first_5_lines(csv62)
 
     print(f"Data will be stored in the folders: {dirCSV5} for wordPerTag and {dirCSV6} for words together.")
-    print("FileSize for csv51 is"+ str(os.path.getsize(csv52)>> 20) + ", In \nhow many slices do you want it to be split in?")
+    print("FileSize for csv51 is"+ str(os.path.getsize(csv52)>> 20) + " MB(Truncated), In how many slices do you want it to be split in?")
     amount = int(input())
     split_txt_file_into_slices(csv52, dirCSV5, amount)
-    print("FileSize for csv6 is"+ str(os.path.getsize(csv52)>> 20) + "MB, In \nhow many slices do you want it to be split in?")
+    print("FileSize for csv6 is"+ str(os.path.getsize(csv52)>> 20) + " MB(Truncated), In how many slices do you want it to be split in?")
     amount = int(input())
     split_txt_file_into_slices(csv62, dirCSV6, amount)
     os.remove(csv5)
@@ -430,7 +443,7 @@ def DoBoth(csv5, csv6, pagescsv, dirCSV5, dirCSV6):
     os.remove(csv61)
     os.remove(csv62)
     os.remove(pages)
-    print("\n It is done. You can go ahead and insert these into the database")
+    print("\n\nIt is done. You can go ahead and insert these into the database.")
     print(f"Data for inserting the page table is found in:{FinalCSV}")
 
 DoBoth(txt_file1, txt_file2, "webCrawling\\lizano.csv", "C:\\Users\\Usuario\\Desktop\\test5", "C:\\Users\\Usuario\\Desktop\\test6")

@@ -292,7 +292,7 @@ print(f"Done! The data was written into {csv_file} and {json_file}")
 For more info about this code, check the documentation. 
 ⡀⡀⡀⡀⡀⡀⡀⡀⡀⢀⣿⣿⣿⣿⣿⢹⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀
 ⡀⡀⡀⡀⡀⡀⡀⡀⠁⣼⣿⡇⠛⠋⠉⣀⡤⣿⡇⢈⣿⠀⠀⠀⠀⠀
-⠁⠁⠁⠁⠁⠁⠁⠁⠁⣿⣿⡑⠚⠁⢀⢀⡀⣿⣧⣾⣿⡗⢲⡀⡠⠄
+⠁⠁⠁⠁⠁⠁⠁⠁⠁⣿⣿⡑⠚⠁⢀⢀⡀⣿⣧⣾⣿⡗⢲⡀⡠⠄          
 ⣀⡀⠁⡂⠂⠁⠡⠈⠁⠿⢻⣿⢄⣀⣀⣀⠔⣿⢻⡿⠋⠠⠄⢝⠀⠀
 ⠄⠈⠒⡂⠐⠂⠨⠐⠊⠁⡨⣿⠂⠠⠈⢋⡀⢃⢸⣇⣀⠔⠚⡅⠀⠀
 ⠉⠉⠉⠉⢱⠉⠉⠉⠉⠉⢩⡷⠒⠉⠢⣀⠡⠂⣼⣿⠠⠠⠄⢸⠉⠉
