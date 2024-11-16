@@ -3,9 +3,14 @@ import csv
 from collections import Counter
 from math import ceil
 
-#                       Here be dragons.
+#Here be dragons.
+# La funcion tiene una funcion al final, se usa para procesar los datos que se obtienen del mapreduce. Para usarlo se requiere que 
+# en consola al convocar los mapreducers se coloque como archivo de salida a un txt, la funcion allá en el fondo "doBoth". Se
+# necesita el txt del 5 como primer parametro, el 6 como segundo, el csv que obtienes del webscraping como tercero, el cuarto es
+# para el directorio donde se quiere dejar el resultado del 5, el ultimo parametro es lo mismo que el anterior pero para el 6.
 
-txt_file = "C:\\Users\\Usuario\\Desktop\\sextotf8.csv"
+txt_file1 = "C:\\Users\\Usuario\\Desktop\\test5.txt"
+txt_file2 = "C:\\Users\\Usuario\\Desktop\\test6.txt"
 
 def quitarPrimeraLinea(txt_file):
     # Step 1: Remove the first line and save the changes
@@ -91,7 +96,7 @@ def formatoParaSexto(txt_file):
 
 def print10First(txt_file):
     with open(txt_file, 'r', encoding='utf-8') as file:
-        first_five_lines = [next(file).strip() for _ in range(10)]
+        first_five_lines = [next(file).strip() for _ in range(5)]
     for line in first_five_lines:
             print(line)
 
@@ -99,13 +104,8 @@ def is_latin1(text):
     # Check if all characters in the text are within the Latin-1 (ISO 8859-1) range (U+0000 to U+00FF)
     return all(ord(char) <= 0xFF for char in text)
 
-def is_latin1(text):
-    # Check if all characters in the text are within the Latin-1 (ISO 8859-1) range (U+0000 to U+00FF)
-    return all(ord(char) <= 0xFF for char in text)
-
 def filter_text(input_file):
     temp_file = input_file + '.tmp'  # Temporary file to store filtered lines
-
     with open(input_file, 'r', encoding='utf-16') as infile, \
          open(temp_file, 'w', encoding='utf-16') as outfile:
         
@@ -113,7 +113,6 @@ def filter_text(input_file):
             # Write line to temp file only if all characters are within the Latin-1 range
             if is_latin1(line):
                 outfile.write(line)
-
     # Replace the original file with the temporary file
     os.replace(temp_file, input_file)
 
@@ -145,18 +144,6 @@ def txt_to_csv5(txt_file, output):
             writer.writerow(('page', 'word', 'tag', 'amount'))
             writer.writerows(lines)
 
-def change_csv_separator(input_file, output_file, old_separator=',', new_separator=';'):
-    # Read the original CSV file with the old separator and write to a new one with the new separator
-    with open(input_file, 'r', encoding='utf-8') as infile, \
-         open(output_file, 'w', encoding='utf-8', newline='') as outfile:
-        
-        reader = csv.reader(infile, delimiter=old_separator)
-        writer = csv.writer(outfile, delimiter=new_separator)
-        
-        for row in reader:
-            writer.writerow(row)
-
-
 def change_csv_separator(input_file, old_separator=',', new_separator=';'):
     temp_file = input_file + '.tmp'  # Temporary file to store the modified content
 
@@ -173,13 +160,13 @@ def change_csv_separator(input_file, old_separator=',', new_separator=';'):
     # Replace the original file with the temporary file
     os.replace(temp_file, input_file)
 
-def print_first_10_lines(csv_file):
+def print_first_5_lines(csv_file):
     with open(csv_file, 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         
         # Loop through the first 10 lines and print each row
         for i, row in enumerate(reader):
-            if i >= 258:
+            if i >= 5:
                 break
             print(row)
 
@@ -211,32 +198,6 @@ def add_line_numbers(file_path):
 
     # Replace the original file with the temporary file
     os.replace(temp_file, file_path)
-
-
-def remove_rows_with_incorrect_columns(input_file, delimiter='\\', max_field_size=131072):
-    temp_file = input_file + '.tmp'
-
-    with open(input_file, 'r', encoding='utf-8') as infile, \
-         open(temp_file, 'w', encoding='utf-8', newline='') as outfile:
-        
-        # Initialize CSV reader and writer
-        writer = csv.writer(outfile, delimiter=delimiter)
-
-        # Read the first line to get the header and expected column count
-        first_line = infile.readline().strip()
-        header = first_line.split(delimiter)
-        expected_columns = len(header)
-        writer.writerow(header)
-
-        # Process each remaining line in the file
-        for line in infile:
-            if len(line) <= max_field_size:  # Check if line size is within limit
-                row = line.strip().split(delimiter)  # Split manually by the delimiter
-                if len(row) == expected_columns:  # Check column count
-                    writer.writerow(row)
-
-    # Replace the original file with the filtered temporary file
-    os.replace(temp_file, input_file)
 
 def remove_rows_with_incorrect_columns(input_file, delimiter='\\'):
     temp_file = input_file + '.tmp'
@@ -321,6 +282,7 @@ def filter_csv_by_second_element(data_file, filter_file, output_file):
     # Read the filter values from the single-column CSV file
     with open(filter_file, 'r') as f_file:
         filter_values = {row[0] for row in csv.reader(f_file, delimiter='\\')}
+        #print(filter_values)
     
     # Open the input CSV and output the filtered lines
     with open(data_file, 'r') as d_file, open(output_file, 'w', newline='') as o_file:
@@ -331,6 +293,33 @@ def filter_csv_by_second_element(data_file, filter_file, output_file):
             if row[1] in filter_values:  # Check if the second element exists in filter_values
                 writer.writerow(row)
 
+def is_latin1(text):
+    # Check if all characters in the text are within the Latin-1 (ISO 8859-1) range (U+0000 to U+00FF)
+    return all(ord(char) <= 0xFF for char in text)
+
+def process_csv(input_file, output_file):
+    with open(input_file, 'r', encoding='utf-8') as infile, \
+         open(output_file, 'w', encoding='utf-8', newline='') as outfile:
+        
+        reader = csv.reader(infile)
+        writer = csv.writer(outfile)
+
+        for row in reader:
+            # Check if all cells in the row contain only Latin-1 compatible characters
+            if all(is_latin1(cell) for cell in row):
+                writer.writerow(row)
+
+def extract_first_three_columns(input_file, output_file):
+    with open(input_file, mode='r', newline='') as infile:
+        reader = csv.reader(infile)
+        with open(output_file, mode='w', newline='') as outfile:
+            writer = csv.writer(outfile)
+            
+            for row in reader:
+                # Write only the first three columns
+                writer.writerow(row[:3])
+
+# Here you can see in great detail, the tragedy that befelled me
 """
 print("Step 1 done, hope to God this works...")
 formatoConComas(txt_file)
@@ -348,7 +337,7 @@ print10First(txt_file)
 print("Yay?")
 txt_to_csv5(txt_file, "C:\\Users\\Usuario\\Desktop\\quinto.csv")
 """
-print("Ay vamos pues")
+#print("Ay vamos pues")
 # change_csv_separator(txt_file, old_separator=',', new_separator='\\')
 #print10First(txt_file)
 #wtf(txt_file)
@@ -366,4 +355,96 @@ print("Ay vamos pues")
 #filter_csv_by_second_element(txt_file, "titles.csv", "C:\\Users\\Usuario\\Desktop\\sextotf8FK.csv")
 #split_txt_file_into_slices("C:\\Users\\Usuario\\Desktop\\sextotf8FK.csv","C:\\Users\\Usuario\\Desktop\\sexto", 14)
 #print10First(txt_file)
-print("Yay?")
+#print("Yay?")
+
+def DoBoth(csv5, csv6, pagescsv, dirCSV5, dirCSV6):
+    """
+    Hacerlo absolutamente todo de un solo. Produce los resultados de TODAS las tablas de este proyecto.
+    Parametros: 
+    csv5:       En realidad es un archivo de texto, lo obtienes con mapReduce a la funcion 5
+    csv6:       En realidad es un archivo de texto, lo obtienes con mapReduce a la funcion 6
+    pagescsv:   Es el csv que se obtiene con webscraping
+    dirCSV5:    Directorio para los resultados del ejercicio 5, son los datos de wordsPerTag
+    dirCSV6:    Directorio para los resultados del ejercicio 5, son los datos de wordsTogetherPerTag
+    """
+    print("Step 0: csv for pages table")
+    newCSV = pagescsv+"1.csv"
+    newCSV2 = pagescsv+"2.csv"
+    pages = pagescsv+"titulos.csv"
+    FinalCSV = pagescsv+"Final.csv"
+    extract_first_three_columns(pagescsv, newCSV)
+    process_csv(newCSV, newCSV2)
+    extract_column(newCSV, pages, 1, ',')
+    change_csv_separator(newCSV2, ',', '\\')
+    filter_csv_by_second_element(newCSV2, pages, FinalCSV)
+    os.remove(newCSV)
+    os.remove(newCSV2)
+
+
+    print("First step is formating")
+    filter_text(csv6)
+    filter_text(csv5)
+    formatoConComas(csv5)
+    formatoConComas(csv6)
+    quitarEspacios(csv5)
+    quitarEspacios(csv6)
+    convert_utf16_to_utf8(csv5)
+    convert_utf16_to_utf8(csv6)
+    dobleComasNo(csv5)
+    dobleComasNo(csv6)
+    
+    print("Time to make csv's")
+    csv51 = csv5+".csv"
+    csv61 = csv6+".csv"
+    csv52 = csv5+"1.csv"
+    csv62 = csv6+"2.csv"
+
+    formato2(csv5)
+    formato2(csv6)
+    formatoParaSexto(csv6)
+
+    txt_to_csv5(csv5, csv51)
+    txt_to_csv(csv6, csv61)
+
+    change_csv_separator(csv51, ',', '\\')
+    change_csv_separator(csv61, ',', '\\')
+    wtf(csv51)
+    wtf(csv61)
+
+    keep_every_second_line(csv51)
+    keep_every_second_line(csv61)
+    add_line_numbers(csv61)
+    add_line_numbers(csv51)
+
+    remove_rows_with_incorrect_columns(csv51, '\\')
+    remove_rows_with_incorrect_columns(csv61, '\\')
+    
+    filter_csv_by_second_element(csv51, pages, csv52)
+    filter_csv_by_second_element(csv61, pages, csv62)
+    
+
+    print("Here is what they look like for now:")
+    print(f"\nFirst five rows of {csv5}")
+    print_first_5_lines(csv52)
+    print(f"\nFirst five rows of {csv6}")
+    print_first_5_lines(csv62)
+
+    print(f"Data will be stored in the folders: {dirCSV5} for wordPerTag and {dirCSV6} for words together.")
+    print("FileSize for csv51 is"+ str(os.path.getsize(csv52)>> 20) + " MB(Truncated), In how many slices do you want it to be split in?")
+    amount = int(input())
+    split_txt_file_into_slices(csv52, dirCSV5, amount)
+    print("FileSize for csv6 is"+ str(os.path.getsize(csv52)>> 20) + " MB(Truncated), In how many slices do you want it to be split in?")
+    amount = int(input())
+    split_txt_file_into_slices(csv62, dirCSV6, amount)
+    os.remove(csv5)
+    os.remove(csv6)
+    os.remove(csv51)
+    os.remove(csv52)
+    os.remove(csv61)
+    os.remove(csv62)
+    os.remove(pages)
+    print("\n\nIt is done. You can go ahead and insert these into the database.")
+    print(f"Data for inserting the page table is found in:{FinalCSV}")
+
+DoBoth(txt_file1, txt_file2, "webCrawling\\lizano.csv", "C:\\Users\\Usuario\\Desktop\\test5", "C:\\Users\\Usuario\\Desktop\\test6")
+
