@@ -112,7 +112,7 @@ async function getTogetherPages(req, res) {
                   ELSE 10
               END) AS score
           FROM 
-              lesswordstogetherpertag AS lwtpt
+              wordstogetherpertag AS lwtpt
           INNER JOIN 
               filteredpages AS fp
           ON
