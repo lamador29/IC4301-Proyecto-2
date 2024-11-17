@@ -21,7 +21,9 @@ async function fetchPage() {
 
         const pageInfo = Array.isArray(page) && page.length > 0 ? page[0] : null;
         document.getElementById("page-title").innerHTML = capitalizeText(pageInfo.title);
-        document.getElementById("page-url").innerHTML = pageInfo.url;
+        const pageUrlElement = document.getElementById("page-url");
+        pageUrlElement.href = pageInfo.url; 
+        pageUrlElement.textContent = pageInfo.url;
         document.getElementById("total-words").innerHTML = pageInfo.wordTotal;
 
         // Word Percentage Table

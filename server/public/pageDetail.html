@@ -10,9 +10,17 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container d-flex align-items-center py-4">
-            <!-- Back Button -->
-            <button onclick="window.history.back()" class="btn btn-back mr-2">&larr; Atrás</button>
+        <div class="container d-flex align-items-center justify-content-between py-4">
+            <!-- Botón de Atrás alineado a la izquierda -->
+            <button onclick="window.history.back()" class="btn btn-back position-absolute" style="left: 30px;">&larr; Atrás</button>
+            
+    
+            <!-- Logo centrado -->
+            <a href="index.html" class="logo-small d-flex flex-column align-items-center">
+                <img src="../assets/world.png" alt="Logo Wiki TEC" style="height: 70px;">
+                <span style="font-size: 1.2rem;">WikiTEC</span>
+            </a>
+    
             <h1 class="h1 mb-0 ml-4">Información de la Página</h1>
         </div>
     </nav>
@@ -20,7 +28,9 @@
         <!-- Webpage Info -->
         <div class="mb-4 info-container">
             <h2 class="h2" id="page-title">Título de la Página</h2>
-            <p class="h4"><strong>URL:</strong> <span id="page-url">https://example.com</span></p>
+            <p class="h4"><strong>URL:</strong> 
+                <a id="page-url" href="https://example.com" target="_blank">https://example.com</a>
+            </p>
             <p class="h4"><strong>Total de Palabras:</strong> <span id="total-words">1234</span></p>
         </div>
 

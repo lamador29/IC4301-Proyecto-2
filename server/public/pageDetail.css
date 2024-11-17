@@ -3,6 +3,23 @@ body {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
+.logo-small {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-small img {
+    height: 60px; 
+    margin-right: 10px;
+}
+
+.logo-small:hover {
+    text-decoration: none;
+    color: #000;
+}
+
 .navbar {
     background-color: #A5B68D;
 }
@@ -36,11 +53,22 @@ body {
 .btn-back {
     background-color: #e8c99b;
     font-size: 1.25rem;
+    margin-left: 0;
 }
 
 .btn-back:hover {
     background-color: #e6b163;
     font-size: 1.25rem;
+}
+
+#page-url {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+#page-url:hover {
+    text-decoration: underline; 
+    color: #0056b3;
 }
 
 .percentage-container{

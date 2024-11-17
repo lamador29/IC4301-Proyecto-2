@@ -75,16 +75,27 @@ async function fetchWord() {
             const wordCell = document.createElement('td');
             const tagCell = document.createElement('td');
             const amountCell = document.createElement('td');
-
-            wordCell.textContent = capitalizeText(wordDetail.page);
+        
+            const pageLink = document.createElement('a');
+            pageLink.href = "#"; 
+            pageLink.textContent = capitalizeText(wordDetail.page);
+            pageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('pageName', wordDetail.page);  
+                window.location.href = '/pageDetail.html';  
+            });
+            wordCell.appendChild(pageLink);
+        
             tagCell.textContent = capitalizeText(wordDetail.tag);
             amountCell.textContent = wordDetail.amount;
-
+        
             row.appendChild(wordCell);
             row.appendChild(tagCell);
             row.appendChild(amountCell);
+        
             document.getElementById("page-tag-table").appendChild(row);
         });
+        
 
     } catch (error) {
         console.error('Error fetching word:', error);
