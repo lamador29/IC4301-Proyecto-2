@@ -1,6 +1,4 @@
 USE proyecto1;
-/* 3 words = 00:01:20 */
-
 
         SELECT
           sub.page,

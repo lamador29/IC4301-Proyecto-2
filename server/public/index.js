@@ -196,14 +196,17 @@ async function fetchWords(searchTerm) {
 }
 
 function formatForInClause(str) {
-    const words = str.split(' ');
-    const filteredWords = words.filter(word => !not_allowed_words.includes(word));
+    let string = str.replace(/\d+/g, '').replace(/\s+/g, ' ').trim();;
+    const words = string.split(' ');
+    const filteredWords = words.filter(word => word !== '' && !not_allowed_words.includes(word));
+
     return filteredWords.map(word => `'${word}'`).join(', ');
 }
 
 function formatForTogetherAndOrClause(str) {
-    const words = str.split(' ');
-    const filteredWords = words.filter(word => !not_allowed_words.includes(word));
+    let string = str.replace(/\d+/g, '').replace(/\s+/g, ' ').trim();;
+    const words = string.split(' ');
+    const filteredWords = words.filter(word => word !== '' && !not_allowed_words.includes(word));
 
     if (filteredWords.length < 2) return '';
     let result = '';

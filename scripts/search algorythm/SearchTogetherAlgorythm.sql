@@ -1,5 +1,4 @@
 USE proyecto1;
-/* 3 words = 00:02:51 */
 
 WITH filteredpages AS (
           SELECT 
