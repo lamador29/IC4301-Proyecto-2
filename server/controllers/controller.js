@@ -5,7 +5,7 @@ async function search(req, res) {
 
   try {
     conn = await mariadbClient.getConnection();
-    await conn.query('USE mysql');
+    await conn.query('USE proyecto1');
     
     const pages = await conn.query(
       "SELECT url, title AS page FROM pages LIMIT 100"
