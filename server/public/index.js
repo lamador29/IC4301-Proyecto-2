@@ -1,10 +1,10 @@
-let searchMode = 'page'; // Default search mode
+let searchMode = 'page';
+setSearchMode('page');
+const not_allowed_words = ["at", "the", "what", "with", "and", "was", "at", "its", "for", "from", "who", "than", "other", "such", "citation", "needed", "where", "when", "while", "have", "are", "were", "had", "this", "like", "that", "began", "make", "also", "about", "they", "used", "use", "has", "some", "many", "most", "very", "which", "may", "not", "could", "such"];
 
-// Sets the search mode based on user selection
 function setSearchMode(mode) {
     searchMode = mode;
 
-    // Toggle the active class for buttons searchByTogetherWords
     document.getElementById("searchByWords").classList.toggle('active', mode === 'words');
     document.getElementById("searchByPage").classList.toggle('active', mode === 'page');
     document.getElementById("searchByTogetherWords").classList.toggle('active', mode === 'together');
@@ -26,7 +26,7 @@ function performSearch() {
         fetchSimplePages();
     } else if (searchMode === 'together') {
         searchTerm = formatForInClause(stringSearchTerm);
-        searchTogetherTerm = formatForTogetherInClause(stringSearchTerm);
+        searchTogetherTerm = formatForTogetherAndOrClause(stringSearchTerm);
         if (searchTogetherTerm !== '') {
             fetchTogetherPages(searchTerm, searchTogetherTerm);
         } else {
@@ -196,16 +196,31 @@ async function fetchWords(searchTerm) {
 }
 
 function formatForInClause(str) {
-    return str.split(' ').map(word => `'${word}'`).join(', ');
+    let string = str.replace(/\d+/g, '').replace(/\s+/g, ' ').trim();;
+    const words = string.split(' ');
+    const filteredWords = words.filter(word => word !== '' && !not_allowed_words.includes(word));
+
+    return filteredWords.map(word => `'${word}'`).join(', ');
 }
 
-function formatForTogetherInClause(str) {
-    const words = str.split(' ');
-    const wordsToProcess = words.slice(1);
-    if (wordsToProcess.length === 0 || wordsToProcess.every(word => word === '')) {
-        return '';
+function formatForTogetherAndOrClause(str) {
+    let string = str.replace(/\d+/g, '').replace(/\s+/g, ' ').trim();;
+    const words = string.split(' ');
+    const filteredWords = words.filter(word => word !== '' && !not_allowed_words.includes(word));
+
+    if (filteredWords.length < 2) return '';
+    let result = '';
+
+    for (let i = 0; i < filteredWords.length - 1; i++) {
+        const word1 = filteredWords[i];
+        const word2 = filteredWords[i + 1];
+        result += `(word1 = '${word1}' AND word2 = '${word2}')`;
+
+        if (i < filteredWords.length - 2) {
+            result += ' OR ';
+        }
     }
-    return wordsToProcess.map(word => `'${word}'`).join(', ');
+    return result;
 }
 
 function capitalizeText(text) {
@@ -215,6 +230,5 @@ function capitalizeText(text) {
         .join(' ');
 }
 
-// Expose functions globally
 window.setSearchMode = setSearchMode;
 window.performSearch = performSearch;

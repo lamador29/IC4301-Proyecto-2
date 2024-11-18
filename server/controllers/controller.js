@@ -8,7 +8,7 @@ async function search(req, res) {
     await conn.query('USE proyecto1');
     
     const pages = await conn.query(
-      "SELECT url, title AS page FROM pages LIMIT 100"
+      "SELECT DISTINCT url, title AS page FROM pages LIMIT 100"
     );
 
     res.json(pages);
@@ -30,28 +30,36 @@ async function getPages(req, res) {
     conn = await mariadbClient.getConnection();
     await conn.query('USE proyecto1');
     
-    const obtainedPages = await conn.query(
-      `SELECT
-          w.page,
-          p.url,
-          p.wordTotal,
-          w.amount *
-          (CASE tag
-              WHEN 'p' THEN 1
-              WHEN 'h1' THEN 10
-              ELSE 5
-          END) AS score 
-       FROM
-          wordspertag AS w
-       INNER JOIN
-          pages as p
-       ON
-          w.page = p.title
-       WHERE
-          w.word IN (${searchTerm})
-       ORDER BY
-          score DESC
-       LIMIT 100;`
+    const obtainedPages = await conn.query(`
+        SELECT
+          sub.page,
+          sub.url,
+          MAX(sub.score) AS score
+        FROM (
+          SELECT
+             w.page,
+             p.url,
+             w.amount *
+             (CASE tag
+                WHEN 'p' THEN 1
+                WHEN 'h1' THEN 10
+                ELSE 5
+             END) AS score 
+          FROM
+             wordspertag AS w
+          INNER JOIN
+             pages as p
+          ON
+             w.page = p.title
+          WHERE
+             w.word IN (${searchTerm})
+        ) AS sub
+        GROUP BY
+           sub.page, sub.url
+        ORDER BY 
+           score DESC
+        LIMIT 100;
+       `
     );
 
     const pages = obtainedPages.map(page => ({
@@ -74,7 +82,8 @@ async function getTogetherPages(req, res) {
   let conn;
   const { searchTerm, searchTogetherTerm } = req.body;
 
-  console.log();
+  console.log(searchTerm);
+  console.log(searchTogetherTerm);
 
   try {
     conn = await mariadbClient.getConnection();
@@ -97,8 +106,10 @@ async function getTogetherPages(req, res) {
               pages as p
           ON
               w.page = p.title
-          WHERE 
+          WHERE
               w.word IN (${searchTerm})
+          GROUP BY 
+              w.page, p.url
       ),
 
       filteredwordstogether AS (
@@ -107,9 +118,9 @@ async function getTogetherPages(req, res) {
               fp.url,
               lwtpt.amount * 
               (CASE lwtpt.tag 
-                  WHEN 'p' THEN 2
-                  WHEN 'h1' THEN 20 
-                  ELSE 10
+                  WHEN 'p' THEN 5
+                  WHEN 'h1' THEN 50 
+                  ELSE 25
               END) AS score
           FROM 
               wordstogetherpertag AS lwtpt
@@ -118,7 +129,9 @@ async function getTogetherPages(req, res) {
           ON
               fp.page = lwtpt.page
           WHERE
-              lwtpt.word2 IN (${searchTogetherTerm})
+              ${searchTogetherTerm}
+          GROUP BY 
+              fp.page, fp.url
       ),
 
       result AS (
@@ -134,7 +147,7 @@ async function getTogetherPages(req, res) {
       FROM 
           result
       GROUP BY 
-          page
+          page, url
       ORDER BY 
           searchscore DESC
       LIMIT 100;
@@ -167,7 +180,7 @@ async function getWords(req, res) {
     await conn.query('USE proyecto1');
 
     const pages = await conn.query(
-      "SELECT word FROM wordspertag WHERE word LIKE ? LIMIT 100",
+      "SELECT DISTINCT word FROM wordspertag WHERE word LIKE ? LIMIT 100",
       [`%${searchTerm}%`]
     );
 
