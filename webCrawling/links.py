@@ -18,10 +18,10 @@ pip install tqdm
 """
 
 #Variables:
-depth = 2
-article = "https://en.wikipedia.org/wiki/spain"
-csv_file = 'C:/Users/Usuario/Desktop/wikipedia.csv'
-json_file = 'C:/Users/Usuario/Desktop/wikipedia.json'
+depth = 1
+article = "https://en.wikipedia.org/wiki/Costa_Rica"
+csv_file = 'testResults//wikipedia.csv'
+json_file = 'testResults//wikipedia.json'
 
 #------------------------------------------------------------------------------------------------
 # Estimated data retrieval | From graph related studies in the matter

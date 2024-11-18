@@ -446,5 +446,9 @@ def DoBoth(csv5, csv6, pagescsv, dirCSV5, dirCSV6):
     print("\n\nIt is done. You can go ahead and insert these into the database.")
     print(f"Data for inserting the page table is found in:{FinalCSV}")
 
-DoBoth(txt_file1, txt_file2, "webCrawling\\lizano.csv", "C:\\Users\\Usuario\\Desktop\\test5", "C:\\Users\\Usuario\\Desktop\\test6")
+
+txt_file1 = "testResults\\test5.txt"
+txt_file2 = "testResults\\test6.txt"
+csvPath = "testResults\\wikipedia.csv"
+DoBoth(txt_file1, txt_file2, csvPath, "testResults\\test5", "testResults\\test6")
 
