@@ -82,9 +82,6 @@ async function getTogetherPages(req, res) {
   let conn;
   const { searchTerm, searchTogetherTerm } = req.body;
 
-  console.log(searchTerm);
-  console.log(searchTogetherTerm);
-
   try {
     conn = await mariadbClient.getConnection();
     await conn.query('USE proyecto1');
