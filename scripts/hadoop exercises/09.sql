@@ -1,8 +1,24 @@
 USE proyecto1;
-/* Filas afectadas: 0  Filas encontradas: 10  Advertencias: 0  Duración para 2 consultas: 00:01:12.2 */
+/* */
 
-SELECT page, tag, COUNT(DISTINCT word) AS distinct_words_count
-FROM wordspertag
-GROUP BY page, tag
-ORDER BY distinct_words_count DESC
-LIMIT 10;
+WITH top10 AS (
+    SELECT 
+        page, 
+        tag, 
+        COUNT(DISTINCT word) AS distinct_words_count,
+        ROW_NUMBER() OVER (PARTITION BY page ORDER BY COUNT(DISTINCT word) DESC) AS rank
+    FROM 
+        wordspertag
+    GROUP BY 
+        page, tag
+)
+SELECT 
+    page, 
+    tag, 
+    distinct_words_count
+FROM 
+    top10
+WHERE 
+    rank <= 10
+ORDER BY 
+    page, rank;
